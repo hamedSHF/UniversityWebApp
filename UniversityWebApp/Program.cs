@@ -1,9 +1,13 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using PracticeWebApp.DataAccess;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using UniversityWebApp.ConfigOptions;
+using UniversityWebApp.DataAccess;
+using UniversityWebApp.Model;
 using UniversityWebApp.Services;
 
-namespace PracticeWebApp
+namespace UniversityWebApp
 {
     public class Program
     {
@@ -24,8 +28,24 @@ namespace PracticeWebApp
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddSingleton<IAuthorizationService, AuthorizationService>();
+            builder.Services.AddSingleton<IUserNameGenerator, UserNameGenerator>();
 
-            
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x =>
+            {
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = builder.Configuration["Authentication:Issuer"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]))
+                };
+            });
 
             var app = builder.Build();
 
@@ -46,11 +66,12 @@ namespace PracticeWebApp
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
+            app.UseAuthentication();
             app.UseAuthorization();
 
 
-            app.MapControllerRoute(name:"default",pattern:"{controller=Home}/{action=Index}/{id:int?}");
-            
+            app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id:int?}");
+
             app.Run();
         }
     }

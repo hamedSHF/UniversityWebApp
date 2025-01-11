@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PracticeWebApp.DataAccess;
-using PracticeWebApp.DataAccess.Interfaces;
-using PracticeWebApp.Model;
+using UniversityWebApp.DataAccess.Interfaces;
+using UniversityWebApp.Model;
 
-namespace PracticeWebApp.Controllers
+namespace UniversityWebApp.Controllers
 {
     [ApiController]
     [Route("/api/course")]

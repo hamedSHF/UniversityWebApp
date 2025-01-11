@@ -1,9 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using PracticeWebApp.Model;
-using System.ComponentModel.DataAnnotations.Schema;
+using UniversityWebApp.Model;
 
-namespace PracticeWebApp.DataAccess.Configurations
+namespace UniversityWebApp.DataAccess.Configurations
 {
     public class CourseConfiguration : IEntityTypeConfiguration<Course>
     {
@@ -16,6 +15,9 @@ namespace PracticeWebApp.DataAccess.Configurations
             builder.HasMany(x => x.Students)
                 .WithMany(z => z.Courses);
 
+            builder.HasOne(x => x.Teacher)
+                .WithMany(z => z.Courses);
+
             builder.Property(x => x.CourseName)
                 .IsRequired()
                 .HasMaxLength(200);
@@ -25,12 +27,13 @@ namespace PracticeWebApp.DataAccess.Configurations
                 .HasMaxLength(500);
 
             builder.Property(x => x.StartTime)
-                .IsRequired()
-                .HasConversion(x => x.ToShortDateString(),z => DateTime.Parse(z));
+                .IsRequired();
 
             builder.Property(x => x.EndTime)
-                .IsRequired()
-                .HasConversion(x => x.ToShortDateString(), z => DateTime.Parse(z));
+                .IsRequired();
+
+            builder.Property(x => x.Capacity)
+                .HasMaxLength(60);
         }
     }
 }

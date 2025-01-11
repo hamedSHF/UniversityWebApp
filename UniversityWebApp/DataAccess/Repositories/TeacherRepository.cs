@@ -1,10 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PracticeWebApp.DataAccess.Interfaces;
-using PracticeWebApp.Model;
+using UniversityWebApp.DataAccess;
+using UniversityWebApp.DataAccess.Interfaces;
+using UniversityWebApp.Model;
 
-namespace PracticeWebApp.DataAccess.Repositories
+namespace UniversityWebApp.DataAccess.Repositories
 {
-    public class TeacherRepository : IRepository<Instrcutor>
+    public class TeacherRepository : IRepository<Teacher>
     {
         private readonly UniversityDbContext dbContext;
         public TeacherRepository(UniversityDbContext dbContext)
@@ -12,34 +13,34 @@ namespace PracticeWebApp.DataAccess.Repositories
             this.dbContext = dbContext;
         }
 
-        public async Task<Instrcutor> Add(Instrcutor entity)
+        public async Task<Teacher> Add(Teacher entity)
         {
             var addedInstructor = await dbContext.AddAsync(entity);
-            await dbContext.SaveChangesAsync();
             return addedInstructor.Entity;
         }
 
-        public async Task Delete(Instrcutor entity)
+        public async Task Delete(Teacher entity)
         {
             dbContext.Remove(entity);
-            await dbContext.SaveChangesAsync();
         }
 
-        public async Task<List<Instrcutor>> GetAll()
+        public async Task<List<Teacher>> GetAll()
         {
-            return await dbContext.Instrutors.Include(x => x.Courses).ToListAsync();
+            return await dbContext.Teachers.Include(x => x.Courses).ToListAsync();
         }
-
-        public async Task<Instrcutor> GetByUserName(string userName)
-        {
-            return await dbContext.Instrutors.FirstOrDefaultAsync(x => x.Td_UserName == userName);
-        }
-
-        public async Task<Instrcutor> Update(Instrcutor entity)
+        public async Task<Teacher> Update(Teacher entity)
         {
             var updatedEntity = dbContext.Update(entity);
-            await dbContext.SaveChangesAsync();
             return updatedEntity.Entity;
+        }
+        public async Task<int> CountAll()
+        {
+            return await dbContext.Teachers.CountAsync();
+        }
+
+        public async Task<int> SaveChanges()
+        {
+            return await dbContext.SaveChangesAsync();
         }
     }
 }

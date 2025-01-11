@@ -1,21 +1,25 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿
 @{
     ViewBag.Title = "Home Page";
 }
 <!DOCTYPE html>
 
 <html>
-<head>
-    <meta name="viewport" content="width=device-width" />
-    <title>@ViewBag.Title</title>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-</head>
 <body class="bg-dark">
     <div class="border border-light d-flex justify-content-center align-items-center">
-        
-    </>
+        <button id="student" type="button">Student</button>
+        <div id="studentButtons" style="display:none;">
+            <a class="btn-primary" asp-controller="Admin" asp-action="RegisterStudent">Register Student</a>
+            <a class="btn-primary" asp-controller="Admin" asp-action="ManageStudents">Manage Students</a>
+        </div>
+    </div>
+        <script>
+            var studentbutton = document.getElementById("student");
+            var buttons = document.getElementById("studentButtons");
+            studentbutton.onclick = () =>{
+                studentbutton.style.display = none;
+                buttons.style.display = flex;
+            }
+        </script>
 </body>
 </html>

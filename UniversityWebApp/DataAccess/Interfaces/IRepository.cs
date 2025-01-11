@@ -1,4 +1,4 @@
-﻿namespace PracticeWebApp.DataAccess.Interfaces
+﻿namespace UniversityWebApp.DataAccess.Interfaces
 {
     public interface IRepository<T> where T : class
     {
@@ -6,6 +6,7 @@
         Task<T> Update(T entity);
         Task Delete(T entity);
         Task<List<T>> GetAll();
-        Task<T> GetByUserName(string userName);
+        Task<int> SaveChanges();
+        Task<int> CountAll();
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace PracticeWebApp.Controllers
+﻿namespace UniversityWebApp.Controllers
 {
     public class TeacherController
     {

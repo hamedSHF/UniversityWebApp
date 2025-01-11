@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Options;
-using PracticeWebApp.DataAccess.Interfaces;
-using PracticeWebApp.Model;
 using UniversityWebApp.ConfigOptions;
+using UniversityWebApp.DataAccess.Interfaces;
+using UniversityWebApp.Model;
 using UniversityWebApp.Services;
 using UniversityWebApp.Services.States;
 
-namespace PracticeWebApp.Controllers
+namespace UniversityWebApp.Controllers
 {
     [Route("api/student")]
     public class StudentController : Controller
@@ -23,15 +23,15 @@ namespace PracticeWebApp.Controllers
         {
             this.logger = logger;
             this.authorizationService = authorizationService;
-            this.identityAddressesOptions = options.Value;
-            this.studentRepository = repository;
+            identityAddressesOptions = options.Value;
+            studentRepository = repository;
         }
         [HttpGet]
         public async Task<IActionResult> GetStudent(string userId)
         {
             //Validate user and get UserName
             var result = await authorizationService.AuthorizeUserById(userId, identityAddressesOptions.IdentityServerSecure);
-            if(result.State == ResponseState.Success)
+            if (result.State == ResponseState.Success)
             {
 
             }

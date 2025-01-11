@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PracticeWebApp.DataAccess.Interfaces;
-using PracticeWebApp.Model;
+using UniversityWebApp.DataAccess;
+using UniversityWebApp.DataAccess.Interfaces;
+using UniversityWebApp.Model;
 
-namespace PracticeWebApp.DataAccess.Repositories
+namespace UniversityWebApp.DataAccess.Repositories
 {
     public class CourseRepository : IRepository<Course>
     {
@@ -15,14 +16,12 @@ namespace PracticeWebApp.DataAccess.Repositories
         public async Task<Course> Add(Course entity)
         {
             var addedEntity = await dbContext.AddAsync(entity);
-            await dbContext.SaveChangesAsync();
             return addedEntity.Entity;
         }
 
         public async Task Delete(Course entity)
         {
             dbContext.Remove(entity);
-            await dbContext.SaveChangesAsync();
         }
 
         public async Task<List<Course>> GetAll()
@@ -38,8 +37,16 @@ namespace PracticeWebApp.DataAccess.Repositories
         public async Task<Course> Update(Course entity)
         {
             var updatedEntity = dbContext.Update(entity);
-            await dbContext.SaveChangesAsync();
             return updatedEntity.Entity;
+        }
+        public async Task<int> CountAll()
+        {
+            return await dbContext.Courses.CountAsync();
+        }
+
+        public async Task<int> SaveChanges()
+        {
+            return await dbContext.SaveChangesAsync();
         }
     }
 }

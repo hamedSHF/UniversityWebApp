@@ -9,15 +9,18 @@ namespace IdentityServer.Controllers
     {
         private readonly ILogger<StudentController> _logger;
         private readonly SignInManager<ApplicationUser> signInManager;
+        private readonly UserManager<ApplicationUser> userManager;
         private readonly ITokenGenerator tokenGenerator;
         private const string studentURL = "https://localhost:7145/Student";
         public StudentController(ILogger<StudentController> logger,
             SignInManager<ApplicationUser> signInManager,
+            UserManager<ApplicationUser> userManager,
             ITokenGenerator tokenGenerator)
         {
             _logger = logger;
             this.signInManager = signInManager;
             this.tokenGenerator = tokenGenerator;
+            this.userManager = userManager;
         }
         [HttpGet]
         public IActionResult Login()
@@ -49,15 +52,23 @@ namespace IdentityServer.Controllers
             }
             return BadRequest();
         }
-        [HttpGet]
-        public IActionResult Register()
-        {
-            return View();
-        }
         [HttpPost]
-        public async Task<IActionResult> Register()
+        public async Task<IActionResult> Register(RegisterRequest request)
         {
-
+            if(ModelState.IsValid)
+            {
+                var result = await userManager.CreateAsync(new ApplicationUser
+                {
+                    Id = request.UserId,
+                    UserName = request.UserName
+                }, request.Password);
+                if(result.Succeeded)
+                {
+                    return Ok();
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError, result.Errors);
+            }
+            return BadRequest(ModelState);
         }
     }
 }

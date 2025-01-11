@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using PracticeWebApp.DataAccess;
-using PracticeWebApp.DataAccess.Interfaces;
-using PracticeWebApp.Model;
+using UniversityWebApp.DataAccess.Interfaces;
+using UniversityWebApp.Model;
 
 namespace UniversityWebApp.DataAccess.Repositories
 {
@@ -16,14 +15,12 @@ namespace UniversityWebApp.DataAccess.Repositories
         public async Task<Student> Add(Student entity)
         {
             var addedStudent = dbContext.Students.Add(entity);
-            await dbContext.SaveChangesAsync();
             return addedStudent.Entity;
         }
 
         public async Task Delete(Student entity)
         {
             dbContext.Remove(entity);
-            await dbContext.SaveChangesAsync();
         }
 
         public async Task<List<Student>> GetAll()
@@ -31,16 +28,19 @@ namespace UniversityWebApp.DataAccess.Repositories
             return await dbContext.Students.Include(x => x.Courses).ToListAsync();
         }
 
-        public async Task<Student> GetByUserName(string userName)
-        {
-            return await dbContext.Students.FindAsync(userName);
-        }
-
         public async Task<Student> Update(Student entity)
         {
             var updatedStudent = dbContext.Update(entity);
-            await dbContext.SaveChangesAsync();
             return updatedStudent.Entity;
+        }
+        public async Task<int> CountAll()
+        {
+            return await dbContext.Students.CountAsync();
+        }
+
+        public async Task<int> SaveChanges()
+        {
+            return await dbContext.SaveChangesAsync();
         }
     }
 }
