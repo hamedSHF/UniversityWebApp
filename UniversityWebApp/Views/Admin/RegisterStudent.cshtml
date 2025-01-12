@@ -1,14 +1,57 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model UniversityWebApp.Model.DTOs.AddStudentDto
 @{
 }
-<!DOCTYPE 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html> 
+<html>
     <head>
         <title></title>
     </head>
     <body>
-
+    <div class="m-5 border rounded p-2 bg-light d-flex justify-content-center align-items-center">
+        <form asp-action="RegisterStudent" class="p-3" method="post">
+            <div class="form-group m-3">
+                <lablel asp-for="FirstName" class="form-label">FirstName</lablel>
+                <input asp-for="FirstName"  class="form-control" type="text"/>
+                <span asp-validation-for="FirstName" class="text-danger"/>
+            </div>
+            <div class="form-group m-3">
+                <lablel asp-for="LastName" class="form-label">LastName</lablel>
+                <input asp-for="LastName" class="form-control" type="text" />
+                <span asp-validation-for="LastName" class="text-danger" />
+            </div>
+            <div class="form-group m-3">
+                <lablel asp-for="BirthDate" class="form-label">BirthDate</lablel>
+                <input asp-for="BirthDate" class="form-control" type="datetime" />
+                <span asp-validation-for="BirthDate" class="text-danger" />
+            </div>
+            <div class="form-group m-3">
+                <lablel asp-for="BirthDate" class="form-label">BirthDate</lablel>
+                <input asp-for="Gender" class="form-control" />
+                <div class="dropdown-menu" id="gender">
+                    <button class="dropdown-item" type="button">Male</button>
+                    <button class="dropdown-item" type="button">Female</button>
+                </div>
+                <span asp-validation-for="Gender" class="text-danger" />
+            </div>
+            <div class="form-group m-3">
+                <label class="form-label">Gender</label>
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <label class="input-group-text" for="inputGender">Gender</label>
+                    </div>
+                    <select asp-for="Gender" class="custom-select" id="inputGender">
+                        <option selected>Choose...</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group m-3">
+                <lablel asp-for="Password" class="form-label">Password</lablel>
+                <input asp-for="Password" type="password" class="form-control" />
+                <span asp-validation-for="Password" class="text-danger" />
+            </div>
+        </form>
+    </div>
     </body>
 </html>

@@ -4,6 +4,8 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using UniversityWebApp.ConfigOptions;
 using UniversityWebApp.DataAccess;
+using UniversityWebApp.DataAccess.Interfaces;
+using UniversityWebApp.DataAccess.Repositories;
 using UniversityWebApp.Model;
 using UniversityWebApp.Services;
 
@@ -27,10 +29,14 @@ namespace UniversityWebApp
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddSingleton<IAuthorizationService, AuthorizationService>();
+            builder.Services.AddSingleton<IIdentityService, IdentityService>();
             builder.Services.AddSingleton<IUserNameGenerator, UserNameGenerator>();
 
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+
+            builder.Services.AddSingleton<ITeacherRepository, TeacherRepository>();
+            builder.Services.AddSingleton<ICourseRepository, CourseRepository>();
+            builder.Services.AddSingleton<IStudentRepository, StudentRepository>();
 
             builder.Services.AddAuthentication(options =>
             {
@@ -42,6 +48,7 @@ namespace UniversityWebApp
                 {
                     ValidateIssuer = true,
                     ValidateIssuerSigningKey = true,
+                    ValidateLifetime = true,
                     ValidIssuer = builder.Configuration["Authentication:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]))
                 };

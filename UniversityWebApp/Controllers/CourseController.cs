@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PracticeWebApp.DataAccess;
 using UniversityWebApp.DataAccess.Interfaces;
 using UniversityWebApp.Model;
 

@@ -4,8 +4,7 @@
     {
         Task<T> Add(T entity);
         Task<T> Update(T entity);
-        Task Delete(T entity);
-        Task<List<T>> GetAll();
+        Task<bool> Delete(T entity);
         Task<int> SaveChanges();
         Task<int> CountAll();
     }

@@ -5,7 +5,7 @@ using UniversityWebApp.Model;
 
 namespace UniversityWebApp.DataAccess.Repositories
 {
-    public class CourseRepository : IRepository<Course>
+    public class CourseRepository : ICourseRepository
     {
         private readonly UniversityDbContext dbContext;
         public CourseRepository(UniversityDbContext dbContext)
@@ -19,17 +19,20 @@ namespace UniversityWebApp.DataAccess.Repositories
             return addedEntity.Entity;
         }
 
-        public async Task Delete(Course entity)
+        public async Task<bool> Delete(Course entity)
         {
             dbContext.Remove(entity);
+            return (await SaveChanges()) > 0 ? true : false;
         }
 
-        public async Task<List<Course>> GetAll()
+        public async Task<IEnumerable<Course>> GetAll(bool includeStudents)
         {
-            return await dbContext.Courses.Include(x => x.Students).ToListAsync();
+            if(includeStudents)
+                return await dbContext.Courses.Include(x => x.Students).ToListAsync();
+            return await dbContext.Courses.ToListAsync();
         }
 
-        public async Task<Course> GetById(int id)
+        public async Task<Course?> GetById(int id)
         {
             return await dbContext.Courses.FirstOrDefaultAsync(x => x.CourseID == id);
         }

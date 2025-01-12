@@ -4,7 +4,7 @@ using UniversityWebApp.Model;
 
 namespace UniversityWebApp.DataAccess.Repositories
 {
-    public class StudentRepository : IRepository<Student>
+    public class StudentRepository : IStudentRepository
     {
         private readonly UniversityDbContext dbContext;
         public StudentRepository(UniversityDbContext dbContext)
@@ -18,14 +18,10 @@ namespace UniversityWebApp.DataAccess.Repositories
             return addedStudent.Entity;
         }
 
-        public async Task Delete(Student entity)
+        public async Task<bool> Delete(Student entity)
         {
             dbContext.Remove(entity);
-        }
-
-        public async Task<List<Student>> GetAll()
-        {
-            return await dbContext.Students.Include(x => x.Courses).ToListAsync();
+            return (await SaveChanges()) > 0 ? true : false;
         }
 
         public async Task<Student> Update(Student entity)
@@ -33,14 +29,22 @@ namespace UniversityWebApp.DataAccess.Repositories
             var updatedStudent = dbContext.Update(entity);
             return updatedStudent.Entity;
         }
-        public async Task<int> CountAll()
-        {
-            return await dbContext.Students.CountAsync();
-        }
 
         public async Task<int> SaveChanges()
         {
             return await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Student>> GetAll(bool includeCourses)
+        {
+            if (includeCourses)
+                return await dbContext.Students.Include(x => x.Courses).ToListAsync();
+            return await dbContext.Students.ToListAsync();
+        }
+
+        public async Task<int> CountAll()
+        {
+            return await dbContext.Students.CountAsync();
         }
     }
 }

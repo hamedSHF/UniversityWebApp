@@ -3,14 +3,16 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization.Metadata;
 using UniversityWebApp.Services.States;
 
 namespace UniversityWebApp.Services
 {
-    public class AuthorizationService : IAuthorizationService
+    public class IdentityService : IIdentityService
     {
         private const int timeOut = 5000;
-        public async Task<Response> AuthorizeUserById(string userId, string address)
+        public async Task<Response> CreateUserForIdentity(string id,string userName,string password, string address)
         {
             try
             {
@@ -19,9 +21,13 @@ namespace UniversityWebApp.Services
                     client.Timeout = TimeSpan.FromSeconds(timeOut);
                     HttpRequestMessage req = new HttpRequestMessage();
                     req.RequestUri = new Uri(address);
-                    req.Content = new StringContent($"UserId={userId}");
+                    req.Content = new StringContent(JsonSerializer.Serialize(new
+                    {
+                        UserId = id,
+                        UserName = userName,
+                        Password = password,
+                    }));
                     req.Method = HttpMethod.Post;
-                    req.Headers.Add("Accept", "application/json");
                     var response = await client.SendAsync(req);
                     if (response.IsSuccessStatusCode)
                     {

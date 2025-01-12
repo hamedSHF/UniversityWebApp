@@ -5,7 +5,7 @@ using UniversityWebApp.Model;
 
 namespace UniversityWebApp.DataAccess.Repositories
 {
-    public class TeacherRepository : IRepository<Teacher>
+    public class TeacherRepository : ITeacherRepository
     {
         private readonly UniversityDbContext dbContext;
         public TeacherRepository(UniversityDbContext dbContext)
@@ -19,14 +19,10 @@ namespace UniversityWebApp.DataAccess.Repositories
             return addedInstructor.Entity;
         }
 
-        public async Task Delete(Teacher entity)
+        public async Task<bool> Delete(Teacher entity)
         {
             dbContext.Remove(entity);
-        }
-
-        public async Task<List<Teacher>> GetAll()
-        {
-            return await dbContext.Teachers.Include(x => x.Courses).ToListAsync();
+            return (await SaveChanges()) > 0 ? true : false;
         }
         public async Task<Teacher> Update(Teacher entity)
         {
@@ -41,6 +37,13 @@ namespace UniversityWebApp.DataAccess.Repositories
         public async Task<int> SaveChanges()
         {
             return await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Teacher>> GetAll(bool includeCourses)
+        {
+            if(includeCourses)
+                return await dbContext.Teachers.Include(x => x.Courses).ToListAsync();
+            return await dbContext.Teachers.ToListAsync();
         }
     }
 }
