@@ -66,6 +66,9 @@ artifacts/
 # ASP.NET Scaffolding
 ScaffoldingReadMe.txt
 
+#Migrations
+Migrations/
+
 # StyleCop
 StyleCopReport.xml
 

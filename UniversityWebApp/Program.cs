@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.Net.Http.Headers;
+using System.Net;
 using System.Text;
 using UniversityWebApp.ConfigOptions;
 using UniversityWebApp.DataAccess;
@@ -34,50 +37,69 @@ namespace UniversityWebApp
 
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
-            builder.Services.AddSingleton<ITeacherRepository, TeacherRepository>();
-            builder.Services.AddSingleton<ICourseRepository, CourseRepository>();
-            builder.Services.AddSingleton<IStudentRepository, StudentRepository>();
+            builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
+            builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+            builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
+                x.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var authorization = context.Request.Cookies[HeaderNames.Authorization];
+                        if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                        {
+                            context.Token = authorization.Substring("Bearer ".Length).Trim();
+                        }
+                        return Task.CompletedTask;
+                    }
+                };
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuer = true,
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true,
+                    ValidateAudience = false,
                     ValidIssuer = builder.Configuration["Authentication:Issuer"],
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]))
                 };
             });
 
+            builder.Services.AddAuthorization();
+
             var app = builder.Build();
 
             //Create migration of database automatically
-            //using (var scope = app.Services.CreateScope())
-            //{
-            //    var dataContext = scope.ServiceProvider.GetRequiredService<UniversityDbContext>();
-            //    dataContext.Database.Migrate();
-            //}
+            using (var scope = app.Services.CreateScope())
+            {
+                var dataContext = scope.ServiceProvider.GetRequiredService<UniversityDbContext>();
+                dataContext.Database.Migrate();
+            }
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    //app.UseSwagger();
+            //    //app.UseSwaggerUI();
+            //}
+
 
             app.UseHttpsRedirection();
 
+            app.UseRouting();
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseAuthorization();
 
 
-            app.MapControllerRoute(name: "default", pattern: "{controller=Home}/{action=Index}/{id:int?}");
+            app.UseEndpoints(options =>
+            {
+                options.MapControllers();
+            });
 
             app.Run();
         }

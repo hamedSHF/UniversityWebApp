@@ -11,7 +11,7 @@ using UniversityWebApp.ViewModels;
 
 namespace UniversityWebApp.Controllers
 {
-    [Route("api/Admin")]
+    [Route("Admin")]
     [Authorize]
     public class AdminController : Controller
     {
@@ -38,12 +38,12 @@ namespace UniversityWebApp.Controllers
             this.identityService = identityService;
             this.mapper = mapper;
         }
-        [HttpGet]
+        [HttpGet("Index")]
         public IActionResult Index()
         {
             return View();
         }
-        [HttpGet]
+        [HttpGet("Register")]
         public IActionResult RegisterStudent()
         {
             return View();
@@ -61,6 +61,7 @@ namespace UniversityWebApp.Controllers
                 var addedEntity = await studentRepository.Add(student);
                 if(addedEntity != null)
                 {
+                    //TODO: run craete Identity in another thread and if it fails then cache user and try later
                     await identityService.CreateUserForIdentity(addedEntity.StudentId.ToString(), addedEntity.StudentUserName,
                         studentDto.Password,identityOptions.Value.IdentityServerSecure);
                     return RedirectToAction(nameof(Confirmation),$"User with Id {addedEntity.StudentId} added.");
@@ -72,7 +73,7 @@ namespace UniversityWebApp.Controllers
             }
             return BadRequest();
         }
-        [HttpGet]
+        [HttpGet("Manage")]
         public async Task<IActionResult> ManageStudents()
         {
             var students = await studentRepository.GetAll(true);
@@ -88,7 +89,7 @@ namespace UniversityWebApp.Controllers
                 Courses = x.Courses.ToList()
             }));
         }
-        [HttpGet]
+        [HttpGet("Confirmation")]
         public IActionResult Confirmation(string message)
         {
             ViewData["ConfirmMsg"] = message;

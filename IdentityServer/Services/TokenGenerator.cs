@@ -32,7 +32,7 @@ namespace IdentityServer.Services
             var symmetricKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecretKey));
             var sigingCredentials = new SigningCredentials(symmetricKey,SecurityAlgorithms.HmacSha256);
             return new JwtSecurityTokenHandler().WriteToken(new JwtSecurityToken(
-                null,
+                options.Issuer,
                 null,
                 claims,
                 null,

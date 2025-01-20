@@ -3,17 +3,8 @@
 }
 
 <div class="border border-light d-flex justify-content-center align-items-center">
-    <button id="student" type="button">Student</button>
-    <div id="studentButtons" style="display:none;">
+    <div id="studentButtons">
         <a class="btn-primary" asp-controller="Admin" asp-action="RegisterStudent">Register Student</a>
         <a class="btn-primary" asp-controller="Admin" asp-action="ManageStudents">Manage Students</a>
     </div>
 </div>
-<script>
-    var studentbutton = document.getElementById("student");
-    var buttons = document.getElementById("studentButtons");
-    studentbutton.onclick = () => {
-        studentbutton.style.display = none;
-        buttons.style.display = flex;
-    }
-</script>
