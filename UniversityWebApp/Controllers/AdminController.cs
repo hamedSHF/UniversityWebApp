@@ -11,8 +11,7 @@ using UniversityWebApp.ViewModels;
 
 namespace UniversityWebApp.Controllers
 {
-    [Route("Admin")]
-    [Authorize]
+    [Authorize(Policy ="Admin")]
     public class AdminController : Controller
     {
         private readonly ICourseRepository courseRepository;
@@ -22,13 +21,15 @@ namespace UniversityWebApp.Controllers
         private readonly IUserNameGenerator userNameGenerator;
         private readonly IIdentityService identityService;
         private readonly IMapper mapper;
+        private readonly ILogger<AdminController> adminLogger;
         public AdminController(ITeacherRepository teacherRepository,
             IStudentRepository studentRepository, 
             ICourseRepository courseRepository,
             IOptions<IdentityAddressesOptions> identityOptions,
             IUserNameGenerator userNameGenerator,
             IIdentityService identityService,
-            IMapper mapper)
+            IMapper mapper,
+            ILogger<AdminController> adminLogger)
         {
             this.teacherRepository = teacherRepository;
             this.studentRepository = studentRepository;
@@ -37,13 +38,14 @@ namespace UniversityWebApp.Controllers
             this.userNameGenerator = userNameGenerator;
             this.identityService = identityService;
             this.mapper = mapper;
+            this.adminLogger = adminLogger;
         }
-        [HttpGet("Index")]
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
-        [HttpGet("Register")]
+        [HttpGet]
         public IActionResult RegisterStudent()
         {
             return View();
@@ -51,29 +53,38 @@ namespace UniversityWebApp.Controllers
         [HttpPost]
         public async Task<IActionResult> RegisterStudent(AddStudentDto studentDto)
         {
-            if(ModelState.IsValid)
+            try
             {
-                var count = await studentRepository.CountAll();
-                var student = mapper.Map<Student>(studentDto);
-                student.StudentUserName = userNameGenerator.GenerateUserName(count);
-                student.RegisterDate = DateTime.Now;
-                student.EducationState = Model.Constants.EducationState.Undergraduate;
-                var addedEntity = await studentRepository.Add(student);
-                if(addedEntity != null)
+                if (ModelState.IsValid)
                 {
-                    //TODO: run craete Identity in another thread and if it fails then cache user and try later
-                    await identityService.CreateUserForIdentity(addedEntity.StudentId.ToString(), addedEntity.StudentUserName,
-                        studentDto.Password,identityOptions.Value.IdentityServerSecure);
-                    return RedirectToAction(nameof(Confirmation),$"User with Id {addedEntity.StudentId} added.");
+                    var count = await studentRepository.CountAll();
+                    var student = mapper.Map<Student>(studentDto);
+                    student.StudentUserName = userNameGenerator.GenerateUserName(count);
+                    student.RegisterDate = DateTime.Now;
+                    student.EducationState = Model.Constants.EducationState.Undergraduate;
+                    var addedEntity = await studentRepository.Add(student);
+                    await studentRepository.SaveChanges();
+                    if (addedEntity != null)
+                    {
+                        //TODO: run craete Identity in another thread and if it fails then cache user and try later
+                        await identityService.CreateUserForIdentity(addedEntity.StudentId.ToString(), addedEntity.StudentUserName,
+                            addedEntity.StudentUserName, identityOptions.Value.IdentityServerSecure + identityOptions.Value.StudentAddresses.Register);
+                        return RedirectToAction(nameof(Confirmation), new { message =  $"User with Id {addedEntity.StudentId} added." });
+                    }
+                    else
+                    {
+                        return StatusCode(StatusCodes.Status500InternalServerError);
+                    }
                 }
-                else
-                {
-                    return StatusCode(StatusCodes.Status500InternalServerError);
-                }
+                return BadRequest(ModelState);
             }
-            return BadRequest();
+            catch(Exception ex)
+            {
+                adminLogger.LogError(ex, "Error occured while adding student.");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
-        [HttpGet("Manage")]
+        [HttpGet]
         public async Task<IActionResult> ManageStudents()
         {
             var students = await studentRepository.GetAll(true);
@@ -89,7 +100,7 @@ namespace UniversityWebApp.Controllers
                 Courses = x.Courses.ToList()
             }));
         }
-        [HttpGet("Confirmation")]
+        [HttpGet]
         public IActionResult Confirmation(string message)
         {
             ViewData["ConfirmMsg"] = message;

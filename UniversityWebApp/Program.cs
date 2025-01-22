@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
-using System.Net;
+using Serilog;
+using System.Runtime.CompilerServices;
 using System.Text;
 using UniversityWebApp.ConfigOptions;
 using UniversityWebApp.DataAccess;
@@ -18,6 +19,13 @@ namespace UniversityWebApp
     {
         public static void Main(string[] args)
         {
+            //Config serilog
+            Log.Logger = new LoggerConfiguration()
+                .MinimumLevel.Debug()
+                .WriteTo.Console()
+                .WriteTo.File("logs/universityinfo.txt", rollingInterval: RollingInterval.Day)
+                .CreateLogger();
+
             var builder = WebApplication.CreateBuilder(args);
 
             var connectionString = builder.Configuration.GetConnectionString("UniversityDBConnectionString")
@@ -44,6 +52,7 @@ namespace UniversityWebApp
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer(x =>
             {
                 x.Events = new JwtBearerEvents
@@ -69,8 +78,19 @@ namespace UniversityWebApp
                 };
             });
 
-            builder.Services.AddAuthorization();
-
+            builder.Services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin", policy =>
+                {
+                    policy.RequireClaim("Role", "Admin");
+                    policy.RequireAuthenticatedUser();
+                });
+                options.AddPolicy("Student", policy =>
+                {
+                    policy.RequireClaim("Role", "Student");
+                    policy.RequireAuthenticatedUser();
+                });
+            });
             var app = builder.Build();
 
             //Create migration of database automatically
@@ -83,22 +103,21 @@ namespace UniversityWebApp
             // Configure the HTTP request pipeline.
             //if (app.Environment.IsDevelopment())
             //{
-            //    //app.UseSwagger();
-            //    //app.UseSwaggerUI();
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
             //}
 
 
             app.UseHttpsRedirection();
-
             app.UseRouting();
+
             app.UseStaticFiles();
             app.UseAuthentication();
             app.UseAuthorization();
 
-
             app.UseEndpoints(options =>
             {
-                options.MapControllers();
+                options.MapDefaultControllerRoute();
             });
 
             app.Run();
