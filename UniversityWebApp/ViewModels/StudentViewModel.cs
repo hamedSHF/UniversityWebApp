@@ -1,6 +1,6 @@
 ﻿using UniversityWebApp.Model.Constants;
-using UniversityWebApp.Model;
 using System.Globalization;
+using UniversityWebApp.Model;
 
 namespace UniversityWebApp.ViewModels
 {

@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Serilog;
-using System.Runtime.CompilerServices;
 using System.Text;
 using UniversityWebApp.ConfigOptions;
 using UniversityWebApp.DataAccess;

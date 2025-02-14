@@ -1,5 +1,32 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@model UniversityWebApp.Model.DTOs.StudentDto
+
+<div class="container">
+    <div class="bg-light border">
+        < class="lead">@nameof(Model.StudentUserName)<p/>
+        <p class="display-5">@Model.StudentUserName</p>
+    </div>
+    <div class="bg-light border">
+        < class="lead">@nameof(Model.FirstName)<p/>
+        <p class="display-5">@Model.FirstName</p>
+    </div>
+    <div class="bg-light border">
+        < class="lead">@nameof(Model.LastName)<p/>
+        <p class="display-5">@Model.LastName</p>
+    </div>
+    <div class="bg-light border">
+        < class="lead">@nameof(Model.Gender)<p/>
+        <p class="display-5">@Model.Gender</p>
+    </div>
+    <div class="bg-light border">
+        < class="lead">@nameof(Model.BirthDate)<p/>
+        <p class="display-5">@Model.BirthDate</p>
+    </div>
+    <div class="bg-light border">
+        < class="lead">@nameof(Model.RegisterDate)<p />
+        <p class="display-5">@Model.RegisterDate</p>
+    </div>
+    <div class="bg-light border">
+        < class="lead">@nameof(Model.EducationState)<p />
+        <p class="display-5">@Model.EducationState</p>
+    </div>
+</div>

@@ -67,8 +67,10 @@ namespace UniversityWebApp.Controllers
                     if (addedEntity != null)
                     {
                         //TODO: run craete Identity in another thread and if it fails then cache user and try later
-                        await identityService.CreateUserForIdentity(addedEntity.StudentId.ToString(), addedEntity.StudentUserName,
-                            addedEntity.StudentUserName, identityOptions.Value.IdentityServerSecure + identityOptions.Value.StudentAddresses.Register);
+                        var res = await identityService.CreateUserForIdentity(addedEntity.StudentId.ToString(),
+                            addedEntity.StudentUserName,
+                            addedEntity.StudentUserName + student.FirstName.ToUpper().First() + student.LastName.ToLower().First(),
+                            identityOptions.Value.IdentityServerSecure + identityOptions.Value.StudentAddresses.Register);
                         return RedirectToAction(nameof(Confirmation), new { message =  $"User with Id {addedEntity.StudentId} added." });
                     }
                     else

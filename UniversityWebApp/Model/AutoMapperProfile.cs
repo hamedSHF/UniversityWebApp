@@ -7,6 +7,7 @@ namespace UniversityWebApp.Model
         public AutoMapperProfile()
         {
             CreateMap<AddStudentDto, Student>();
+            CreateMap<Student, StudentDto>();
         }
     }
 }

@@ -27,7 +27,13 @@ namespace IdentityServer
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
 
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireDigit = true;
+                options.Password.RequireLowercase = true;
+                options.Password.RequireUppercase = true;
+            })
                 .AddEntityFrameworkStores<AppDbContext>();
 
             builder.Services.AddScoped<ITokenGenerator, TokenGenerator>();

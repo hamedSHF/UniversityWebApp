@@ -28,6 +28,7 @@ namespace UniversityWebApp.Services
                         Password = password,
                     }));
                     req.Method = HttpMethod.Post;
+                    req.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
                     var response = await client.SendAsync(req);
                     if (response.IsSuccessStatusCode)
                     {
@@ -37,12 +38,12 @@ namespace UniversityWebApp.Services
                             State = ResponseState.Success
                         };
                     }
-                    return new Response { State = ResponseState.Failure };
+                    return new Response { State = ResponseState.Failure,Content = await response.Content.ReadAsStringAsync() };
                 }
             }
-            catch
+            catch(Exception ex)
             {
-                return new Response { State = ResponseState.Failure };
+                return new Response { State = ResponseState.Failure,Content = ex.Message };
             }
         }
     }

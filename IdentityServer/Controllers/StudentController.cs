@@ -47,7 +47,7 @@ namespace IdentityServer.Controllers
             return BadRequest();
         }
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             if(ModelState.IsValid)
             {

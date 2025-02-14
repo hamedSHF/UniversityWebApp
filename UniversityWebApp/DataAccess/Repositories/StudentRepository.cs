@@ -46,5 +46,15 @@ namespace UniversityWebApp.DataAccess.Repositories
         {
             return await dbContext.Students.CountAsync();
         }
+
+        public async Task<Student?> GetStudent(string userId, bool includeCourses)
+        {
+            if (includeCourses)
+            {
+                return await dbContext.Students.Include(x => x.Courses)
+                    .FirstOrDefaultAsync(x => x.StudentId == Guid.Parse(userId));
+            }
+            return await dbContext.Students.FirstOrDefaultAsync(x => x.StudentId == Guid.Parse(userId));
+        }
     }
 }
