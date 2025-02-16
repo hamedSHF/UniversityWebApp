@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Net.Http.Headers;
 using Serilog;
+using System.Security.Claims;
 using System.Text;
 using UniversityWebApp.ConfigOptions;
 using UniversityWebApp.DataAccess;
@@ -22,10 +23,10 @@ namespace UniversityWebApp
                 .CreateLogger();
 
             var builder = WebApplication.CreateBuilder(args);
-
+            var identitySection = builder.Configuration.GetSection(IdentityAddressesOptions.IdentityAddresses);
             builder.AddInfraServices();
             // Add services to the container.
-            builder.Services.Configure<IdentityAddressesOptions>(builder.Configuration.GetSection(IdentityAddressesOptions.IdentityAddresses));
+            builder.Services.Configure<IdentityAddressesOptions>(identitySection);
             builder.Services.AddMvc();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -47,6 +48,10 @@ namespace UniversityWebApp
                         if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
                         {
                             context.Token = authorization.Substring("Bearer ".Length).Trim();
+                        }
+                        else
+                        {
+                            context.HttpContext.Response.Redirect(identitySection["IdentityServerSecure"]);
                         }
                         return Task.CompletedTask;
                     }

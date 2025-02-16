@@ -14,7 +14,7 @@ namespace UniversityWebApp.DataAccess.Repositories
 
         public async Task<Student> Add(Student entity)
         {
-            var addedStudent = dbContext.Students.Add(entity);
+            var addedStudent = await dbContext.Students.AddAsync(entity);
             return addedStudent.Entity;
         }
 
@@ -55,6 +55,12 @@ namespace UniversityWebApp.DataAccess.Repositories
                     .FirstOrDefaultAsync(x => x.StudentId == Guid.Parse(userId));
             }
             return await dbContext.Students.FirstOrDefaultAsync(x => x.StudentId == Guid.Parse(userId));
+        }
+
+        public async Task<bool> StudentExists(string firstName, string lastName)
+        {
+            return await dbContext.Students.
+                CountAsync(x => x.FirstName == firstName && x.LastName == lastName) > 0;
         }
     }
 }

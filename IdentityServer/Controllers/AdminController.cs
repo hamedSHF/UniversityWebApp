@@ -30,7 +30,8 @@ namespace IdentityServer.Controllers
                 var result = await loginService.Login(request, "Admin");
                 if (result.ResponseState == ResponseState.OK)
                 {
-                    HttpContext.Response.Cookies.Append("Authorization", String.Format("Bearer {0}", result.JWTToken), new CookieOptions
+                    HttpContext.Response.Cookies.Append("Authorization",
+                        String.Format("Bearer {0}", result.JWTToken), new CookieOptions
                     {
                         HttpOnly = true,
                         Secure = true

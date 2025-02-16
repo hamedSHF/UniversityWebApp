@@ -60,6 +60,8 @@ namespace UniversityWebApp.Controllers
             {
                 if (ModelState.IsValid)
                 {
+                    if (await studentRepository.StudentExists(studentDto.FirstName, studentDto.LastName))
+                        return StatusCode(StatusCodes.Status409Conflict, "Student already exists."); 
                     var count = await studentRepository.CountAll();
                     var student = Student.CreateStudent(userNameGenerator.GenerateUserName(count), studentDto);
                     var addedEntity = await studentRepository.Add(student);
