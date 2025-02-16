@@ -1,4 +1,7 @@
 ﻿using AutoMapper;
+using Common;
+using Common.IntegratedEvents;
+using MassTransit;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -19,7 +22,7 @@ namespace UniversityWebApp.Controllers
         private readonly IStudentRepository studentRepository;
         private readonly IOptions<IdentityAddressesOptions> identityOptions;
         private readonly IUserNameGenerator userNameGenerator;
-        private readonly IIdentityService identityService;
+        private readonly IPublishEndpoint publishEndpoint;
         private readonly IMapper mapper;
         private readonly ILogger<AdminController> adminLogger;
         public AdminController(ITeacherRepository teacherRepository,
@@ -27,7 +30,7 @@ namespace UniversityWebApp.Controllers
             ICourseRepository courseRepository,
             IOptions<IdentityAddressesOptions> identityOptions,
             IUserNameGenerator userNameGenerator,
-            IIdentityService identityService,
+            IPublishEndpoint publishEndpoint,
             IMapper mapper,
             ILogger<AdminController> adminLogger)
         {
@@ -36,7 +39,7 @@ namespace UniversityWebApp.Controllers
             this.courseRepository = courseRepository;
             this.identityOptions = identityOptions;
             this.userNameGenerator = userNameGenerator;
-            this.identityService = identityService;
+            this.publishEndpoint = publishEndpoint;
             this.mapper = mapper;
             this.adminLogger = adminLogger;
         }
@@ -58,25 +61,18 @@ namespace UniversityWebApp.Controllers
                 if (ModelState.IsValid)
                 {
                     var count = await studentRepository.CountAll();
-                    var student = mapper.Map<Student>(studentDto);
-                    student.StudentUserName = userNameGenerator.GenerateUserName(count);
-                    student.RegisterDate = DateTime.Now;
-                    student.EducationState = Model.Constants.EducationState.Undergraduate;
+                    var student = Student.CreateStudent(userNameGenerator.GenerateUserName(count), studentDto);
                     var addedEntity = await studentRepository.Add(student);
                     await studentRepository.SaveChanges();
                     if (addedEntity != null)
                     {
-                        //TODO: run craete Identity in another thread and if it fails then cache user and try later
-                        var res = await identityService.CreateUserForIdentity(addedEntity.StudentId.ToString(),
-                            addedEntity.StudentUserName,
-                            addedEntity.StudentUserName + student.FirstName.ToUpper().First() + student.LastName.ToLower().First(),
-                            identityOptions.Value.IdentityServerSecure + identityOptions.Value.StudentAddresses.Register);
-                        return RedirectToAction(nameof(Confirmation), new { message =  $"User with Id {addedEntity.StudentId} added." });
+                        string userName = addedEntity.StudentUserName;
+                        await publishEndpoint.Publish(new CreatedStudentEvent
+                            (addedEntity.StudentId.ToString(),userName,
+                            PasswordCreator.CreatePassword(userName,addedEntity.FirstName,addedEntity.LastName)));
+                        return RedirectToAction(nameof(Confirmation), new { message = $"User with Id {addedEntity.StudentId} added." });
                     }
-                    else
-                    {
-                        return StatusCode(StatusCodes.Status500InternalServerError);
-                    }
+                    return StatusCode(StatusCodes.Status500InternalServerError);
                 }
                 return BadRequest(ModelState);
             }

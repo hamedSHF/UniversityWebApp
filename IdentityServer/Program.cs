@@ -1,3 +1,4 @@
+using Common;
 using IdentityServer.ConfigOptions;
 using IdentityServer.Data;
 using IdentityServer.Models;
@@ -17,22 +18,17 @@ namespace IdentityServer
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            var connectionString = builder.Configuration.GetConnectionString("IdentityUniversityConnectionString") 
-                ?? throw new InvalidOperationException("Connection string 'AppDbContextConnection' not found.");
 
+            builder.AddApplicationServices();
             // Add services to the container.
-
             builder.Services.Configure<AuthenticationOptions>(builder.Configuration.GetSection(AuthenticationOptions.Authentication));
-
             builder.Services.AddControllersWithViews();
-            builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlServer(connectionString));
-
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
-                options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireDigit = true;
-                options.Password.RequireLowercase = true;
-                options.Password.RequireUppercase = true;
+                options.Password.RequireNonAlphanumeric = PasswordRules.CheckRules.Exists(x => x == Rules.ContainsNonAlphanumeric);
+                options.Password.RequireDigit = PasswordRules.CheckRules.Exists(x => x == Rules.ContainsDigit);
+                options.Password.RequireLowercase = PasswordRules.CheckRules.Exists(x => x == Rules.ContainsLowerCase);
+                options.Password.RequireUppercase = PasswordRules.CheckRules.Exists(x => x == Rules.ContainsUpperCase);
             })
                 .AddEntityFrameworkStores<AppDbContext>();
 

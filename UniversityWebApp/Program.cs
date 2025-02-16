@@ -6,9 +6,6 @@ using Serilog;
 using System.Text;
 using UniversityWebApp.ConfigOptions;
 using UniversityWebApp.DataAccess;
-using UniversityWebApp.DataAccess.Interfaces;
-using UniversityWebApp.DataAccess.Repositories;
-using UniversityWebApp.Model;
 using UniversityWebApp.Services;
 
 namespace UniversityWebApp
@@ -26,26 +23,15 @@ namespace UniversityWebApp
 
             var builder = WebApplication.CreateBuilder(args);
 
-            var connectionString = builder.Configuration.GetConnectionString("UniversityDBConnectionString")
-                ?? throw new InvalidOperationException("Connection string 'AppDbContextConnection' not found.");
+            builder.AddInfraServices();
             // Add services to the container.
             builder.Services.Configure<IdentityAddressesOptions>(builder.Configuration.GetSection(IdentityAddressesOptions.IdentityAddresses));
-
-            builder.Services.AddDbContext<UniversityDbContext>(options =>
-            options.UseSqlServer(connectionString));
-
             builder.Services.AddMvc();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-
-            builder.Services.AddSingleton<IIdentityService, IdentityService>();
+            builder.Services.AddSerilog();
+            
             builder.Services.AddSingleton<IUserNameGenerator, UserNameGenerator>();
-
-            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
-
-            builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
-            builder.Services.AddScoped<ICourseRepository, CourseRepository>();
-            builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 
             builder.Services.AddAuthentication(options =>
             {
