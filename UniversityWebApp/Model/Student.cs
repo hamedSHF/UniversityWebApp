@@ -15,11 +15,11 @@ namespace UniversityWebApp.Model
         public DateTime RegisterDate { get; set; }
         public string Gender { get; set; }
         public EducationState EducationState { get; set; }
+        public ICollection<Major> Majors { get; private set; } = new List<Major>(); 
         public ICollection<Course> Courses { get; private set; } = new List<Course>();
 
-        public static Student CreateStudent(string userName,AddStudentDto dto)
-        {
-            return new Student
+        public static Student CreateStudent(string userName, AddStudentDto dto) =>
+            new Student
             {
                 StudentUserName = userName,
                 FirstName = dto.FirstName,
@@ -29,6 +29,5 @@ namespace UniversityWebApp.Model
                 Gender = dto.Gender,
                 EducationState = EducationState.Undergraduate
             };
-        }
     }
 }
