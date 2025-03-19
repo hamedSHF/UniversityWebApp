@@ -1,12 +1,8 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Net.Http.Headers;
 using Serilog;
-using System.Security.Claims;
-using System.Text;
 using UniversityWebApp.ConfigOptions;
 using UniversityWebApp.DataAccess;
+using UniversityWebApp.Model;
 using UniversityWebApp.Services;
 
 namespace UniversityWebApp
@@ -25,54 +21,23 @@ namespace UniversityWebApp
             var builder = WebApplication.CreateBuilder(args);
             var identitySection = builder.Configuration.GetSection(IdentityAddressesOptions.IdentityAddresses);
             builder.AddInfraServices();
+            builder.AddCustomAuthentication();
             // Add services to the container.
             builder.Services.Configure<IdentityAddressesOptions>(identitySection);
             builder.Services.AddMvc();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
             builder.Services.AddSerilog();
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
             
             builder.Services.AddSingleton<IUserNameGenerator, UserNameGenerator>();
-
-            builder.Services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            }).AddJwtBearer(x =>
-            {
-                x.Events = new JwtBearerEvents
-                {
-                    OnMessageReceived = context =>
-                    {
-                        var authorization = context.Request.Cookies[HeaderNames.Authorization];
-                        if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-                        {
-                            context.Token = authorization.Substring("Bearer ".Length).Trim();
-                        }
-                        else
-                        {
-                            context.HttpContext.Response.Redirect(identitySection["IdentityServerSecure"]);
-                        }
-                        return Task.CompletedTask;
-                    }
-                };
-                x.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-                    ValidateAudience = false,
-                    ValidIssuer = builder.Configuration["Authentication:Issuer"],
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Authentication:SecretKey"]))
-                };
-            });
 
             builder.Services.AddAuthorization(options =>
             {
                 options.AddPolicy("Admin", policy =>
                 {
-                    policy.RequireClaim("Role", "Admin");
                     policy.RequireAuthenticatedUser();
+                    policy.RequireClaim("Role", "Admin");
                 });
                 options.AddPolicy("Student", policy =>
                 {
@@ -89,18 +54,11 @@ namespace UniversityWebApp
                 dataContext.Database.Migrate();
             }
 
-            // Configure the HTTP request pipeline.
-            //if (app.Environment.IsDevelopment())
-            //{
-            //    app.UseSwagger();
-            //    app.UseSwaggerUI();
-            //}
-
-
             app.UseHttpsRedirection();
             app.UseRouting();
 
             app.UseStaticFiles();
+
             app.UseAuthentication();
             app.UseAuthorization();
 

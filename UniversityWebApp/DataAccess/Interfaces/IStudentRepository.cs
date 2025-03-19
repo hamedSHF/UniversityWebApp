@@ -7,5 +7,6 @@ namespace UniversityWebApp.DataAccess.Interfaces
         Task<IEnumerable<Student>> GetAll(bool includeCourses);
         Task<Student?> GetStudent(string userId, bool includeCourses);
         Task<bool> StudentExists(string firstName, string lastName);
+        Task<Guid> GetIdByUserName(string userName);
     }
 }

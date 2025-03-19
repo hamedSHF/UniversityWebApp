@@ -46,23 +46,5 @@ namespace IdentityServer.Controllers
             }
             return BadRequest();
         }
-        [HttpPost]
-        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
-        {
-            if(ModelState.IsValid)
-            {
-                var result = await userManager.CreateAsync(new ApplicationUser
-                {
-                    Id = request.UserId,
-                    UserName = request.UserName
-                }, request.Password);
-                if(result.Succeeded)
-                {
-                    return Ok();
-                }
-                return StatusCode(StatusCodes.Status500InternalServerError, result.Errors);
-            }
-            return BadRequest(ModelState);
-        }
     }
 }

@@ -5,11 +5,7 @@
             <th scope="col">UserName</th>
             <th scope="col">FirstName</th>
             <th scope="col">LastName</th>
-            <th scope="col">Birth Date</th>
-            <th scope="col">Register Date</th>
-            <th scope="col">Gender</th>
-            <th scope="col">Education State</th>
-            <th scope="col">Courses</th>
+            <th scope="col"></th>
         </tr>
     </thead>
     <tbody>
@@ -19,18 +15,10 @@
                 <th scope="row">@student.StudentUserName</th>
                 <td>@student.FirstName</td>
                 <td>@student.LastName</td>
-                <td>@student.BirthDateString</td>
-                <td>@student.RegisterDateString</td>
-                <td>@student.Gender</td>
-                <td>@student.EducationStateString</td>
-                <td>
-                    <ul>
-                        @foreach (var course in student.Courses)
-                        {
-                            <li>@course.CourseName</li>
-                        }
-                    </ul>
-                </td>
+                <td><a class="btn btn-primary"
+                    asp-controller="Admin"
+                    asp-action="DetailedStudent"
+                    asp-route-id="@student.StudentUserName">Edit</a></td>
             </tr>
         }
     </tbody>

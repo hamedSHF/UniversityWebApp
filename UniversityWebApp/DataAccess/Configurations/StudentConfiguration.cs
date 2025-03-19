@@ -27,7 +27,8 @@ namespace UniversityWebApp.DataAccess.Configurations
                 .HasMaxLength(100);
 
             builder.Property(x => x.RegisterDate)
-                .IsRequired();
+                .IsRequired()
+                .HasPrecision(0, 0);
 
             builder.Property(x => x.BirthDate)
                 .IsRequired();
