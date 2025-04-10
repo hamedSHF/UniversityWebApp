@@ -1,0 +1,31 @@
+﻿@model UniversityWebApp.ViewModels.MajorViewModel
+
+
+<div class="row">
+    <div class="col p-4">
+        <p class="text-center">Majors</p>
+        <div id="majors" class="border border-primary d-flex flex-column p-4">
+            <input class="form-control" type="text" placeholder="Search Major">
+            @foreach (var item in Model.Titles)
+            {
+                <div class="d-inline-flex bg-info rounded-2 m-2">
+                    <p class="btn btn-success text-light m-2">@item</p>
+                    <div class="btn btn-primary m-2">Edit</div>
+                    <div class="btn btn-danger m-2">Delete</div>
+                </div>
+            }
+        </div>
+        <div id="addMajor" class="btn btn-primary m-2">Add Major</div>
+    </div>
+    <div class="col p-4">
+        <p class="text-center">CourseTopics</p>
+        <div id="topics" class="border border-primary d-flex flex-column p-4">
+            <input class="form-control" type="text" placeholder="Search Topic">
+        </div>
+        <div class="btn btn-primary m-2">Add Topic</div>
+    </div>
+</div>
+@section scripts
+{
+
+}

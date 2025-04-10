@@ -19,10 +19,9 @@ namespace UniversityWebApp.DataAccess.Repositories
             return addedEntity.Entity;
         }
 
-        public async Task<bool> Delete(Course entity)
+        public void Delete(Course entity)
         {
             dbContext.Remove(entity);
-            return (await SaveChanges()) > 0 ? true : false;
         }
 
         public async Task<IEnumerable<Course>> GetAll(bool includeStudents)
@@ -37,10 +36,9 @@ namespace UniversityWebApp.DataAccess.Repositories
             return await dbContext.Courses.FirstOrDefaultAsync(x => x.CourseID == id);
         }
 
-        public async Task<Course> Update(Course entity)
+        public void Update(Course entity)
         {
-            var updatedEntity = dbContext.Update(entity);
-            return updatedEntity.Entity;
+            dbContext.Update(entity);
         }
         public async Task<int> CountAll()
         {
@@ -50,6 +48,11 @@ namespace UniversityWebApp.DataAccess.Repositories
         public async Task<int> SaveChanges()
         {
             return await dbContext.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<Course>> GetAll()
+        {
+            return await dbContext.Courses.ToListAsync();
         }
     }
 }

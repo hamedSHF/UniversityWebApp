@@ -27,6 +27,8 @@ namespace UniversityWebApp
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
             builder.Services.AddScoped<ITeacherRepository, TeacherRepository>();
             builder.Services.AddScoped<ICourseRepository, CourseRepository>();
+            builder.Services.AddScoped<ICourseTopicRepository, CourseTopicRepository>();
+            builder.Services.AddScoped<IMajorRepository, MajorRepository>();
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 
             builder.Services.AddMassTransit(x =>

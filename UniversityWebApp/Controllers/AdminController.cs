@@ -22,6 +22,7 @@ namespace UniversityWebApp.Controllers
     public class AdminController : Controller
     {
         private readonly ICourseRepository courseRepository;
+        private readonly IMajorRepository majorRepository;
         private readonly ITeacherRepository teacherRepository;
         private readonly IStudentRepository studentRepository;
         private readonly IOptions<IdentityAddressesOptions> identityOptions;
@@ -32,6 +33,7 @@ namespace UniversityWebApp.Controllers
         public AdminController(ITeacherRepository teacherRepository,
             IStudentRepository studentRepository, 
             ICourseRepository courseRepository,
+            IMajorRepository majorRepository,
             IOptions<IdentityAddressesOptions> identityOptions,
             IUserNameGenerator userNameGenerator,
             IPublishEndpoint publishEndpoint,
@@ -41,6 +43,7 @@ namespace UniversityWebApp.Controllers
             this.teacherRepository = teacherRepository;
             this.studentRepository = studentRepository;
             this.courseRepository = courseRepository;
+            this.majorRepository = majorRepository;
             this.identityOptions = identityOptions;
             this.userNameGenerator = userNameGenerator;
             this.publishEndpoint = publishEndpoint;
@@ -81,7 +84,7 @@ namespace UniversityWebApp.Controllers
         [HttpGet]
         public async Task<IActionResult> ManageStudents()
         {
-            var students = await studentRepository.GetAll(true);
+            var students = await studentRepository.GetAll();
             return View(students.Select(x => new StudentViewModel
             {
                 StudentUserName = x.StudentUserName,
@@ -110,11 +113,16 @@ namespace UniversityWebApp.Controllers
         {
             var student = mapper.Map<Student>(studentViewModel);
             student.StudentId = await studentRepository.GetIdByUserName(student.StudentUserName);
-            await studentRepository.Update(student);
+            studentRepository.Update(student);
             var result = await studentRepository.SaveChanges();
             return result > 0 ? TypedResults.Ok(new ResponseType("Student updated successfully.",
                 $"/Admin/{nameof(ManageStudents)}",Model.ResponseTypes.ResponseActions.Redirect)) 
                 : TypedResults.BadRequest();
+        }
+        [HttpGet]
+        public async Task<IActionResult> ManageCourses()
+        {
+            return View(new MajorViewModel { Titles = (await majorRepository.GetAll()).Select(x => x.Title) });
         }
     }
 }

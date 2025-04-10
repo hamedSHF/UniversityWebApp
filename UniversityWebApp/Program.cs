@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using UniversityWebApp.ConfigOptions;
 using UniversityWebApp.DataAccess;
+using UniversityWebApp.EndPoints;
 using UniversityWebApp.Model;
 using UniversityWebApp.Services;
 
@@ -46,6 +47,10 @@ namespace UniversityWebApp
                 });
             });
             var app = builder.Build();
+
+            app.MapGroup("/api/majors")
+                .MapMajorEndpoints()
+                .WithTags("Majors api");
 
             //Create migration of database automatically
             using (var scope = app.Services.CreateScope())
