@@ -13,7 +13,7 @@
      5. Remove, Edit professor
 
 ## Technologies
-. Asp.net MVC
-. Minimal Api
-. RabbitMQ
-. JQuery
+- Asp.net MVC
+- Minimal Api
+- RabbitMQ
+- JQuery
