@@ -22,18 +22,11 @@ async function doneClicked() {
     }
     else {
         majors.removeChild(newMajor);
-        const div = document.createElement("div");
-        div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
-        div.id = majorName;
-        div.innerHTML = `<p class="btn btn-success text-light m-2">${majorName}</p>\n
-                            <div class="btn btn-primary m-2">Edit</div>\n
-                            <div class="btn btn-danger m-2" onclick=${deleteClicked('majorName')}>Delete</div>`;
-        majors.insertBefore(div, addMajor);
+        majors.insertBefore(createMajorElement(majorName), addMajor);
     }
 }
 
 async function deleteClicked(major) {
-    console.log(major);
     let deletedElement = document.getElementById(major);
     let response = await fetch(`${domainName}/api/major/${major}`, {
         method: 'DELETE'
@@ -43,6 +36,26 @@ async function deleteClicked(major) {
     }
 }
 
-async function editClicked(element) {
+function editClicked(major) {
+    let element = document.getElementById(`${major}`);
+    let newNode = document.createElement("div");
+    newNode.className = "form-group d-inline-flex";
+    newNode.innerHTML = `<input type='text' class='form-control m-2' name='major' placeholder=${major} required>
+                    \n<button class='btn btn-primary m-2'>Update</button>
+                    \n<button class='btn btn-danger m-2' onclick=cancelUpdateClicked(this,${'"' + major + '"'})>Cancel</button>`;
+    element.replaceWith(newNode);
+}
 
+function cancelUpdateClicked(node, id) {
+    node.parentElement.replaceWith(createMajorElement(id));
+}
+
+function createMajorElement(name) {
+    let div = document.createElement("div");
+    div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
+    div.id = name;
+    div.innerHTML = `<p class="btn btn-success text-light m-2">${name}</p>\n
+                            <div class="btn btn-primary m-2" onclick=editClicked(${'"' + name + '"'})>Edit</div>\n
+                            <div class="btn btn-danger m-2" onclick=deleteClicked(${'"' + name + '"'})>Delete</div>`;
+    return div;
 }
