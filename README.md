@@ -11,3 +11,9 @@
      3. Add, Delete, Edit Courses
      4. Do registration for a professor
      5. Remove, Edit professor
+
+## Technologies
+- Asp.net MVC
+- Minimal Api
+- RabbitMQ
+- JQuery
