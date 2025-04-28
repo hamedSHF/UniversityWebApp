@@ -11,7 +11,7 @@ namespace UniversityWebApp.EndPoints
     {
         public static RouteGroupBuilder MapMajorEndpoints(this RouteGroupBuilder builder)
         {
-            builder.MapPost("/", AddMajor);
+            builder.MapPost("/add", AddMajor);
             builder.MapGet("/", GetMajors);
             builder.MapPut("/", UpdateMajor);
             builder.MapDelete("/{majorName:required}", DeleteMajor);

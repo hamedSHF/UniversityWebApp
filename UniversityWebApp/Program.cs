@@ -48,7 +48,7 @@ namespace UniversityWebApp
             });
             var app = builder.Build();
 
-            app.MapGroup("/api/majors")
+            app.MapGroup("/api/major")
                 .MapMajorEndpoints()
                 .WithTags("Majors api");
 
