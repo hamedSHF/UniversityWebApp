@@ -16,6 +16,7 @@ namespace UniversityWebApp.EndPoints
             builder.MapGet("/", GetMajors);
             builder.MapPut("/", UpdateMajor);
             builder.MapDelete("/{majorName:required}", DeleteMajor);
+            builder.MapGet("/search/{query:required}", SearchMajor);
 
             return builder;
         }
@@ -42,7 +43,8 @@ namespace UniversityWebApp.EndPoints
             else
             {
                 majors = (await majorRepository.GetAll())
-                    .Select(x => new MajorResponse(x.Title));
+                    .Select(x => new MajorResponse(x.Title))
+                    .OrderBy(x => x.title);
             }
 
             return TypedResults.Ok<IEnumerable<MajorResponse>>(majors);
@@ -80,11 +82,11 @@ namespace UniversityWebApp.EndPoints
         }
 
         public static async Task<IEnumerable<string>> SearchMajor(
-            string name,
+            string query,
             IMajorRepository majorRepository)
         {
             var results = await majorRepository.GetAll();
-            var majors = results.Where(x => x.Title.Contains(name)).Select(x => x.Title);
+            var majors = results.Where(x => x.Title.Contains(query)).Select(x => x.Title);
             return majors;
         }
     }

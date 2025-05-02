@@ -5,14 +5,37 @@ const domainName = 'https://localhost:7145';
 let newMajor;
 
 search.onkeyup = function () {
-
+    if (search.value) {
+        $.ajax({
+            url: `${domainName}/api/major/search/${search.value}`,
+            type: "GET",
+            success: function (result) {
+                console.log(result);
+                for (let i = 0; i < majors.children.length; i++) {
+                    let major = majors.children[i];
+                    if (result.includes(major.id)) {
+                        major.style = 'diplay: block !important';
+                    }
+                    else {
+                        console.log(major);
+                        major.style = 'display: none !important';
+                    }
+                }
+            }
+        });
+    }
+    else {
+        for (let i = 0; i < majors.children.length; i++) {
+            majors.children[i].style = '';
+        }
+    }
 }
 addMajor.onclick = function () {
     newMajor = document.createElement("div");
     newMajor.className = "form-group d-inline-flex";
     newMajor.innerHTML = `<input type='text' class='form-control m-2' name='major' required>
                     \n<button class='btn btn-primary m-2'>Done</button>`;
-    majors.insertBefore(newMajor, addMajor);
+    majors.insertBefore(newMajor, majors.lastChild);
     newMajor.children[1].onclick = doneClicked;
 };
 async function doneClicked() {
@@ -27,7 +50,7 @@ async function doneClicked() {
     }
     else {
         majors.removeChild(newMajor);
-        majors.insertBefore(createMajorElement(majorName), addMajor);
+        majors.insertBefore(createMajorElement(majorName), majors.lastChild);
     }
 }
 

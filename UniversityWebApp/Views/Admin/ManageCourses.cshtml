@@ -4,8 +4,9 @@
 <div class="row">
     <div class="col p-4">
         <p class="text-center">Majors</p>
-        <div id="majors" class="border border-primary d-flex flex-column p-4">
+        <div class="border border-primary d-flex flex-column p-4">
             <input id="searchBox" class="form-control" type="text" placeholder="Search Major">
+            <div id="majors" class="d-flex flex-column p-4">
             @foreach (var item in Model.Titles)
             {
                 <div class="d-inline-flex bg-info rounded-2 m-2 justify-content-between" id="@item">
@@ -14,6 +15,7 @@
                     <div class="btn btn-danger m-2" onclick="deleteClicked('@item')">Delete</div>
                 </div>
             }
+            </div>
             <div id="addMajor" class="btn btn-primary m-2">Add Major</div>
         </div>
     </div>
