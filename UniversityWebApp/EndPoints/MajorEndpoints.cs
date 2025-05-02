@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using UniversityWebApp.DataAccess.Interfaces;
+using UniversityWebApp.Model;
 using UniversityWebApp.Model.RequestTypes;
 using UniversityWebApp.Model.ResponseTypes;
 
@@ -53,8 +54,11 @@ namespace UniversityWebApp.EndPoints
             var oldMajor = await majorRepository.FindMajor(majorRequest.OldTitle);
             if (oldMajor is not null)
             {
-                oldMajor.Title = majorRequest.NewTitle;
-                majorRepository.Update(oldMajor);
+                var updatedMajor = Major.CreateMajor(majorRequest.NewTitle,
+                    oldMajor.Students.ToList(),
+                    oldMajor.Topics.ToList());
+                majorRepository.Delete(oldMajor);
+                await majorRepository.Add(updatedMajor);
                 await majorRepository.SaveChanges();
                 return TypedResults.Ok();
             }
@@ -73,6 +77,15 @@ namespace UniversityWebApp.EndPoints
             majorRepository.Delete(major);
             await majorRepository.SaveChanges();
             return TypedResults.Ok();
+        }
+
+        public static async Task<IEnumerable<string>> SearchMajor(
+            string name,
+            IMajorRepository majorRepository)
+        {
+            var results = await majorRepository.GetAll();
+            var majors = results.Where(x => x.Title.Contains(name)).Select(x => x.Title);
+            return majors;
         }
     }
 }

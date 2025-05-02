@@ -1,7 +1,12 @@
 ﻿const addMajor = document.getElementById("addMajor");
 const majors = document.getElementById("majors");
+const search = document.getElementById("searchBox");
 const domainName = 'https://localhost:7145';
 let newMajor;
+
+search.onkeyup = function () {
+
+}
 addMajor.onclick = function () {
     newMajor = document.createElement("div");
     newMajor.className = "form-group d-inline-flex";
@@ -41,13 +46,29 @@ function editClicked(major) {
     let newNode = document.createElement("div");
     newNode.className = "form-group d-inline-flex";
     newNode.innerHTML = `<input type='text' class='form-control m-2' name='major' placeholder=${major} required>
-                    \n<button class='btn btn-primary m-2'>Update</button>
+                    \n<button class='btn btn-primary m-2' onclick=updateClicked(this,${'"' + major + '"'})>Update</button>
                     \n<button class='btn btn-danger m-2' onclick=cancelUpdateClicked(this,${'"' + major + '"'})>Cancel</button>`;
     element.replaceWith(newNode);
 }
 
 function cancelUpdateClicked(node, id) {
     node.parentElement.replaceWith(createMajorElement(id));
+}
+
+function updateClicked(node, oldTitle) {
+    let newTitle = node.parentElement.children[0].value;
+    if (newTitle) {
+        $.ajax({
+            url: `${domainName}/api/major`,
+            contentType: "application/json",
+            type: "PUT",
+            data: JSON.stringify({ OldTitle: oldTitle, NewTitle: newTitle }),
+            success: function () {
+                let newElement = createMajorElement(newTitle);
+                node.parentElement.replaceWith(newElement);
+            }
+        })
+    }
 }
 
 function createMajorElement(name) {
