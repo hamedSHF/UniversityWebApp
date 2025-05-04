@@ -28,9 +28,13 @@ namespace UniversityWebApp.DataAccess.Repositories
             dbContext.Majors.Remove(entity);
         }
 
-        public async Task<Major?> FindMajor(string title)
+        public async Task<Major?> GetMajor(string title, bool includeTopics = false)
         {
-            return await dbContext.Majors.FirstOrDefaultAsync(x => x.Title == title);
+            if(!includeTopics)
+                return await dbContext.Majors.FirstOrDefaultAsync(x => x.Title == title);
+            return await dbContext.Majors.
+                Include(x => x.Topics).
+                FirstOrDefaultAsync(x =>x.Title == title);
         }
 
         public async Task<IEnumerable<Major>> GetAll()
@@ -51,6 +55,11 @@ namespace UniversityWebApp.DataAccess.Repositories
         public void Update(Major entity)
         {
             dbContext.Majors.Update(entity);
+        }
+
+        public async Task<bool> Exists(string title)
+        {
+            return (await dbContext.Majors.CountAsync(x => x.Title == title)) > 0;
         }
     }
 }

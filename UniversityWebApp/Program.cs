@@ -48,17 +48,6 @@ namespace UniversityWebApp
             });
             var app = builder.Build();
 
-            app.MapGroup("/api/major")
-                .MapMajorEndpoints()
-                .WithTags("Majors api");
-
-            //Create migration of database automatically
-            using (var scope = app.Services.CreateScope())
-            {
-                var dataContext = scope.ServiceProvider.GetRequiredService<UniversityDbContext>();
-                dataContext.Database.Migrate();
-            }
-
             app.UseHttpsRedirection();
             app.UseRouting();
 
@@ -67,10 +56,20 @@ namespace UniversityWebApp
             app.UseAuthentication();
             app.UseAuthorization();
 
-            app.UseEndpoints(options =>
+            if (app.Environment.IsDevelopment())
             {
-                options.MapDefaultControllerRoute();
-            });
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+
+            app.MapControllers();
+
+            app.MapGroup("/api/major")
+                .MapMajorEndpoints()
+                .WithTags("Majors api");
+            app.MapGroup("/api/topic")
+                .MapTopicEndpoints()
+                .WithTags("Topic api");
 
             app.Run();
         }

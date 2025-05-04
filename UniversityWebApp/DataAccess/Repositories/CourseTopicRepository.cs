@@ -32,6 +32,11 @@ namespace UniversityWebApp.DataAccess.Repositories
             return await dbContext.CourseTopics.ToListAsync();
         }
 
+        public async Task<CourseTopics?> GetTopic(string topic)
+        {
+            return await dbContext.CourseTopics.FirstOrDefaultAsync(x => x.Title == topic);
+        }
+
         public async Task<int> SaveChanges()
         {
             return await dbContext.SaveChangesAsync();

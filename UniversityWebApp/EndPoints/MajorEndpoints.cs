@@ -24,9 +24,16 @@ namespace UniversityWebApp.EndPoints
             AddMajorRequest major, 
             [FromServices] IMajorRepository majorRepository)
         {
-            await majorRepository.Add(new Model.Major { Title =  major.Title });
-            await majorRepository.SaveChanges();
-            return TypedResults.Created();
+            try
+            {
+                await majorRepository.Add(new Model.Major { Title = major.Title });
+                await majorRepository.SaveChanges();
+                return TypedResults.Created();
+            }
+            catch
+            {
+                return TypedResults.BadRequest();
+            }
         }
         public static async Task<Results<Ok<IEnumerable<MajorResponse>>, BadRequest>> GetMajors(
             [FromQuery(Name ="topics")] bool? includeTopics,
@@ -53,7 +60,7 @@ namespace UniversityWebApp.EndPoints
             UpdateMajorRequest majorRequest,
             [FromServices] IMajorRepository majorRepository)
         {
-            var oldMajor = await majorRepository.FindMajor(majorRequest.OldTitle);
+            var oldMajor = await majorRepository.GetMajor(majorRequest.OldTitle);
             if (oldMajor is not null)
             {
                 var updatedMajor = Major.CreateMajor(majorRequest.NewTitle,
@@ -73,7 +80,7 @@ namespace UniversityWebApp.EndPoints
             string majorName,
             [FromServices] IMajorRepository majorRepository)
         {
-            var major = await majorRepository.FindMajor(majorName);
+            var major = await majorRepository.GetMajor(majorName);
             if (major is null)
                 return TypedResults.BadRequest($"{majorName} is not founded!");
             majorRepository.Delete(major);

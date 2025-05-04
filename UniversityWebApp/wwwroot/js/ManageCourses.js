@@ -6,23 +6,15 @@ let newMajor;
 
 search.onkeyup = function () {
     if (search.value) {
-        $.ajax({
-            url: `${domainName}/api/major/search/${search.value}`,
-            type: "GET",
-            success: function (result) {
-                console.log(result);
-                for (let i = 0; i < majors.children.length; i++) {
-                    let major = majors.children[i];
-                    if (result.includes(major.id)) {
-                        major.style = 'diplay: block !important';
-                    }
-                    else {
-                        console.log(major);
-                        major.style = 'display: none !important';
-                    }
-                }
+        for (let i = 0; i < majors.children.length; i++) {
+            let major = majors.children[i];
+            if (major.id.toLowerCase().includes(search.value.toLowerCase())) {
+                major.style = 'diplay: block !important';
             }
-        });
+            else {
+                major.style = 'display: none !important';
+            }
+        }
     }
     else {
         for (let i = 0; i < majors.children.length; i++) {
@@ -92,6 +84,10 @@ function updateClicked(node, oldTitle) {
             }
         })
     }
+}
+
+function majorClicked(major) {
+
 }
 
 function createMajorElement(name) {
