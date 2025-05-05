@@ -1,8 +1,12 @@
 ﻿const addMajor = document.getElementById("addMajor");
+const addTopic = document.getElementById("addTopic");
 const majors = document.getElementById("majors");
 const search = document.getElementById("searchBox");
+const topics = document.getElementById("topics");
 const domainName = 'https://localhost:7145';
 let newMajor;
+let newTopic;
+let clickedMajor;
 
 search.onkeyup = function () {
     if (search.value) {
@@ -23,13 +27,31 @@ search.onkeyup = function () {
     }
 }
 addMajor.onclick = function () {
-    newMajor = document.createElement("div");
-    newMajor.className = "form-group d-inline-flex";
-    newMajor.innerHTML = `<input type='text' class='form-control m-2' name='major' required>
-                    \n<button class='btn btn-primary m-2'>Done</button>`;
+    newMajor = createInputElement();
     majors.insertBefore(newMajor, majors.lastChild);
     newMajor.children[1].onclick = doneClicked;
 };
+addTopic.onclick = function () {
+    newTopic = createInputElement();
+    topics.insertBefore(newTopic, topics.lastChild);
+    newTopic.children[1].onclick = topicDoneClicked;
+}
+async function topicDoneClicked() {
+    let topicName = newTopic.children[0].value;
+    let response = await fetch(`${domainName}/api/topic/add`, {
+        method: "POST",
+        body: JSON.stringify({
+            MajorName: `${clickedMajor}`,
+            TopicName: `${topicName}`
+        }),
+        headers: { "Content-Type": "application/json" }
+    });
+    if (response.status == 201) {
+        topics.removeChild(newTopic);
+        topics.insertBefore(createTopicElement(topicName), topics.lastChild);
+    }
+    
+}
 async function doneClicked() {
     let majorName = newMajor.children[0].value;
     let response = await fetch(`${domainName}/api/major/add`, {
@@ -86,8 +108,24 @@ function updateClicked(node, oldTitle) {
     }
 }
 
-function majorClicked(major) {
-
+async function majorClicked(major) {
+    clickedMajor = major;
+    let response = await fetch(`${domainName}/api/topic/${major}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+    });
+    if (response.ok) {
+        clearTopicSection();
+        let res = await response.json();
+        if (res.lenght != 0) {
+            for (let i = 0; i < res.length; i++) {
+                topics.appendChild(createTopicElement(res[i]));
+            }
+        }
+        else {
+            alert("No topics yet");
+        }
+    }
 }
 
 function createMajorElement(name) {
@@ -99,3 +137,25 @@ function createMajorElement(name) {
                             <div class="btn btn-danger m-2" onclick=deleteClicked(${'"' + name + '"'})>Delete</div>`;
     return div;
 }
+
+function createTopicElement(name) {
+    let div = document.createElement("div");
+    div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
+    div.id = name;
+    div.innerHTML = `<p class="btn btn-warning text-light m-2">${name}</p>\n
+                            <div class="btn btn-primary m-2" onclick=editClicked(${'"' + name + '"'})>Edit</div>\n
+                            <div class="btn btn-danger m-2" onclick=deleteClicked(${'"' + name + '"'})>Delete</div>`;
+    return div;
+}
+
+function createInputElement() {
+    let div = document.createElement("div");
+    div.className = "form-group d-inline-flex";
+    div.innerHTML = `<input type='text' class='form-control m-2' required>
+                    \n<button class='btn btn-primary m-2'>Done</button>`;
+    return div;
+}
+
+let clearTopicSection = () => {
+    topics.innerHTML = '';
+};

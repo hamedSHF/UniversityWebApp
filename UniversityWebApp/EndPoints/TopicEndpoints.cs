@@ -13,7 +13,7 @@ namespace UniversityWebApp.EndPoints
         {
             builder.MapGet("/{major:required}", GetTopicsByMajor);
             builder.MapPost("/add", AddTopic);
-            builder.MapPost("/delete/{topic:required}", DeleteTopic);
+            builder.MapPost("/delete", DeleteTopic);
             return builder;
         }
 
@@ -30,7 +30,7 @@ namespace UniversityWebApp.EndPoints
             return TypedResults.BadRequest($"{major} not founded");
         }
         public static async Task<Results<Created, BadRequest<string>>> AddTopic(
-            [FromBody] AddTopicRequest topicRequest,
+            [FromBody] TopicRequest topicRequest,
             IMajorRepository majorRepository,
             ICourseTopicRepository topicRepository)
         {
@@ -49,19 +49,27 @@ namespace UniversityWebApp.EndPoints
             }
         }
         public static async Task<Results<Ok, BadRequest<string>>> DeleteTopic(
-            string topic,
-            ICourseTopicRepository topicRepository)
+            [FromBody] TopicRequest request,
+            ICourseTopicRepository topicRepository,
+            IMajorRepository majorRepository)
         {
-            var fetchedTopic = await topicRepository.GetTopic(topic);
-            if(fetchedTopic != null)
+            var major = await majorRepository.GetMajor(request.MajorName, true);
+            if(major != null)
             {
-                topicRepository.Delete(fetchedTopic);
-                await topicRepository.SaveChanges();
-                return TypedResults.Ok();
+                var topic = major.Topics.
+                    FirstOrDefault(x => x.Title == request.TopicName);
+                if(topic != null)
+                {
+                    major.Topics.Remove(topic);
+                    majorRepository.Update(major);
+                    await topicRepository.SaveChanges();
+                    return TypedResults.Ok();
+                }
+                return TypedResults.BadRequest($"{request.TopicName} not founded");
             }
             else
             {
-                return TypedResults.BadRequest($"{topic} not founded");
+                return TypedResults.BadRequest($"{request.MajorName} not founded");
             }
         }
     }

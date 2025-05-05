@@ -62,7 +62,10 @@ namespace UniversityWebApp
                 app.UseSwaggerUI();
             }
 
-            app.MapControllers();
+            app.UseEndpoints(config =>
+            {
+                config.MapDefaultControllerRoute();
+            });
 
             app.MapGroup("/api/major")
                 .MapMajorEndpoints()
