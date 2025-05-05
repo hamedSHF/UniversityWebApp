@@ -7,12 +7,13 @@ const domainName = 'https://localhost:7145';
 let newMajor;
 let newTopic;
 let clickedMajor;
+let lastClickedMajor;
 
 search.onkeyup = function () {
     if (search.value) {
         for (let i = 0; i < majors.children.length; i++) {
             let major = majors.children[i];
-            if (major.id.toLowerCase().includes(search.value.toLowerCase())) {
+            if (major.id.toLowerCase().startsWith(search.value.toLowerCase())) {
                 major.style = 'diplay: block !important';
             }
             else {
@@ -50,7 +51,6 @@ async function topicDoneClicked() {
         topics.removeChild(newTopic);
         topics.insertBefore(createTopicElement(topicName), topics.lastChild);
     }
-    
 }
 async function doneClicked() {
     let majorName = newMajor.children[0].value;
@@ -78,15 +78,30 @@ async function deleteClicked(major) {
     }
 }
 
+async function deleteTopicClicked(topic) {
+    let deletedTopic = document.getElementById(topic);
+    let response = await fetch(`${domainName}/api/topic/delete`, {
+        method: 'DELETE',
+        body: JSON.stringify({
+            MajorName: `${clickedMajor}`,
+            TopicName: `${topic}`
+        }),
+        headers: { "Content-Type": "application/json" }
+    });
+    if (response.ok) {
+        topics.removeChild(deletedTopic);
+    }
+}
 function editClicked(major) {
     let element = document.getElementById(`${major}`);
     let newNode = document.createElement("div");
     newNode.className = "form-group d-inline-flex";
     newNode.innerHTML = `<input type='text' class='form-control m-2' name='major' placeholder=${major} required>
-                    \n<button class='btn btn-primary m-2' onclick=updateClicked(this,${'"' + major + '"'})>Update</button>
-                    \n<button class='btn btn-danger m-2' onclick=cancelUpdateClicked(this,${'"' + major + '"'})>Cancel</button>`;
+                    \n<button class='btn btn-primary m-2' onclick=updateClicked(this,'${major}')>Update</button>
+                    \n<button class='btn btn-danger m-2' onclick=cancelUpdateClicked(this,'${major}')>Cancel</button>`;
     element.replaceWith(newNode);
 }
+
 
 function cancelUpdateClicked(node, id) {
     node.parentElement.replaceWith(createMajorElement(id));
@@ -108,13 +123,19 @@ function updateClicked(node, oldTitle) {
     }
 }
 
-async function majorClicked(major) {
+async function majorClicked(element, major) {
+    if (lastClickedMajor) {
+        lastClickedMajor.classList.remove("btn-warning");
+        lastClickedMajor.classList.add("btn-success");
+    }
     clickedMajor = major;
     let response = await fetch(`${domainName}/api/topic/${major}`, {
         method: "GET",
         headers: { "Content-Type": "application/json" }
     });
     if (response.ok) {
+        element.classList.remove("btn-success");
+        element.classList.add("btn-warning");
         clearTopicSection();
         let res = await response.json();
         if (res.lenght != 0) {
@@ -126,15 +147,16 @@ async function majorClicked(major) {
             alert("No topics yet");
         }
     }
+    lastClickedMajor = element;
 }
 
 function createMajorElement(name) {
     let div = document.createElement("div");
     div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
     div.id = name;
-    div.innerHTML = `<p class="btn btn-success text-light m-2">${name}</p>\n
-                            <div class="btn btn-primary m-2" onclick=editClicked(${'"' + name + '"'})>Edit</div>\n
-                            <div class="btn btn-danger m-2" onclick=deleteClicked(${'"' + name + '"'})>Delete</div>`;
+    div.innerHTML = `<p class="btn btn-success text-light m-2" onclick=majorClicked(this, '${name}')>${name}</p>\n
+                            <div class="btn btn-primary m-2" onclick="editClicked('${name}')">Edit</div>\n
+                            <div class="btn btn-danger m-2" onclick="deleteClicked('${name}')">Delete</div>`;
     return div;
 }
 
@@ -143,8 +165,8 @@ function createTopicElement(name) {
     div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
     div.id = name;
     div.innerHTML = `<p class="btn btn-warning text-light m-2">${name}</p>\n
-                            <div class="btn btn-primary m-2" onclick=editClicked(${'"' + name + '"'})>Edit</div>\n
-                            <div class="btn btn-danger m-2" onclick=deleteClicked(${'"' + name + '"'})>Delete</div>`;
+                            <div class="btn btn-primary m-2" onclick="editClicked('${name}')">Edit</div>\n
+                            <div class="btn btn-danger m-2" onclick="deleteTopicClicked('${name}')">Delete</div>`;
     return div;
 }
 

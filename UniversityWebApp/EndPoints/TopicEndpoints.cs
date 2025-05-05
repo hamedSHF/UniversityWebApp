@@ -13,7 +13,7 @@ namespace UniversityWebApp.EndPoints
         {
             builder.MapGet("/{major:required}", GetTopicsByMajor);
             builder.MapPost("/add", AddTopic);
-            builder.MapPost("/delete", DeleteTopic);
+            builder.MapDelete("/delete", DeleteTopic);
             return builder;
         }
 
