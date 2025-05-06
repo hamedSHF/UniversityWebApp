@@ -14,6 +14,7 @@ namespace UniversityWebApp.EndPoints
             builder.MapGet("/{major:required}", GetTopicsByMajor);
             builder.MapPost("/add", AddTopic);
             builder.MapDelete("/delete", DeleteTopic);
+            builder.MapPut("/update", UpdateTopic);
             return builder;
         }
 
@@ -22,7 +23,7 @@ namespace UniversityWebApp.EndPoints
             IMajorRepository majorRepository)
         {
             var existed = await majorRepository.Exists(major);
-            if(existed)
+            if (existed)
             {
                 return TypedResults.Ok((await majorRepository.GetMajor(major, true))
                     .Topics.Select(x => x.Title));
@@ -35,7 +36,7 @@ namespace UniversityWebApp.EndPoints
             ICourseTopicRepository topicRepository)
         {
             var major = await majorRepository.GetMajor(topicRequest.MajorName);
-            if(major != null)
+            if (major != null)
             {
                 await topicRepository.Add(CourseTopics.CreateTopic(
                     topicRequest.TopicName,
@@ -54,11 +55,11 @@ namespace UniversityWebApp.EndPoints
             IMajorRepository majorRepository)
         {
             var major = await majorRepository.GetMajor(request.MajorName, true);
-            if(major != null)
+            if (major != null)
             {
                 var topic = major.Topics.
                     FirstOrDefault(x => x.Title == request.TopicName);
-                if(topic != null)
+                if (topic != null)
                 {
                     major.Topics.Remove(topic);
                     majorRepository.Update(major);
@@ -66,6 +67,34 @@ namespace UniversityWebApp.EndPoints
                     return TypedResults.Ok();
                 }
                 return TypedResults.BadRequest($"{request.TopicName} not founded");
+            }
+            else
+            {
+                return TypedResults.BadRequest($"{request.MajorName} not founded");
+            }
+        }
+        public static async Task<Results<Ok, BadRequest<string>>> UpdateTopic(
+            [FromBody] UpdateTopicRequest request,
+            IMajorRepository majorRepository,
+            ICourseTopicRepository topicRepository)
+        {
+            var major = await majorRepository.GetMajor(request.MajorName);
+            if (major != null)
+            {
+                var topic = await topicRepository.GetTopic(request.OldTopicName);
+                if (topic != null)
+                {
+                    topicRepository.Delete(topic);
+                    await topicRepository.Add(CourseTopics.CreateTopic(
+                        request.NewTopicName,
+                        new List<Major>
+                    {
+                        major
+                    }));
+                    await topicRepository.SaveChanges();
+                    return TypedResults.Ok();
+                }
+                return TypedResults.BadRequest($"{request.OldTopicName} not founded");
             }
             else
             {
