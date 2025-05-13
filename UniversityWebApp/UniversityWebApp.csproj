@@ -23,6 +23,7 @@
   <ItemGroup>
     <Folder Include="Contracts\" />
     <Folder Include="EndPoints\Validators\" />
+    <Folder Include="Migrations\" />
     <Folder Include="Views\Teacher\" />
   </ItemGroup>
 

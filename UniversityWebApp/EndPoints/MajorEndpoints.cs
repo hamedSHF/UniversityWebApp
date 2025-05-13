@@ -60,14 +60,11 @@ namespace UniversityWebApp.EndPoints
             UpdateMajorRequest majorRequest,
             [FromServices] IMajorRepository majorRepository)
         {
-            var oldMajor = await majorRepository.GetMajor(majorRequest.OldTitle);
-            if (oldMajor is not null)
+            var updatedMajor = await majorRepository.GetMajor(majorRequest.OldTitle);
+            if (updatedMajor is not null)
             {
-                var updatedMajor = Major.CreateMajor(majorRequest.NewTitle,
-                    oldMajor.Students.ToList(),
-                    oldMajor.Topics.ToList());
-                majorRepository.Delete(oldMajor);
-                await majorRepository.Add(updatedMajor);
+                updatedMajor.Title = majorRequest.NewTitle;
+                majorRepository.Update(updatedMajor);
                 await majorRepository.SaveChanges();
                 return TypedResults.Ok();
             }

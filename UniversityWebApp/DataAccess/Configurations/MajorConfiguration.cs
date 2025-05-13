@@ -8,7 +8,12 @@ namespace UniversityWebApp.DataAccess.Configurations
     {
         public void Configure(EntityTypeBuilder<Major> builder)
         {
-            builder.HasKey(x => x.Title);
+            builder.HasKey(x => x.MajorId);
+            builder.Property(x => x.MajorId)
+                .ValueGeneratedOnAdd();
+
+            builder.HasIndex(x => x.Title)
+                .IsUnique();
             
             builder.HasMany(x => x.Students)
                 .WithMany(x => x.Majors);
