@@ -24,6 +24,8 @@ namespace UniversityWebApp.EndPoints
             AddMajorRequest major, 
             [FromServices] IMajorRepository majorRepository)
         {
+            if (string.IsNullOrEmpty(major.Title))
+                return TypedResults.BadRequest();
             try
             {
                 await majorRepository.Add(new Model.Major { Title = major.Title });
