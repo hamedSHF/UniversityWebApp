@@ -5,6 +5,7 @@ const search = document.getElementById("searchBox");
 const topics = document.getElementById("topics");
 const modalBody = document.getElementById("modalBody");
 const addSelectedTopics = document.getElementById("addSelectedTopics");
+const showTopicList = document.getElementById("showTopicList");
 const domainName = 'https://localhost:7145';
 let newMajor;
 let newTopic;
@@ -40,8 +41,28 @@ addTopic.onclick = function () {
     modalBody.appendChild(newTopic, modalBody.lastChild);
     newTopic.children[1].onclick = topicDoneClicked;
 };
-addSelectedTopics.onclick = function () {
-
+addSelectedTopics.onclick = async function () {
+    let selectedTopics = new Map();
+    let children = Array.from(modalBody.children); //Long topic list make this cast expensive?
+    children.forEach(topic => {
+        if (topic.children[0].checked)
+            selectedTopics.set(topic.children[0].dataset.id, topic.children[1].innerText);
+    });
+    let response = await fetch(`${domainName}/api/topic/addTopicMajor`, {
+        method: "POST",
+        body: JSON.stringify({ MajorName: clickedMajor, TopicIds: Array.from(selectedTopics.keys()) }),
+        headers: { "Content-Type": "application/json" }
+    });
+    if (response.ok || response.status == 201) {
+        selectedTopics.forEach((name, id) => {
+            if (Array.from(topics.children).filter((child) => child.dataset.id == id).length == 0)
+                topics.appendChild(createTopicElement(name, id));
+            else {
+                alert(`${name} was selected before!`);
+            }
+        });
+    }
+    $("#topicModal").modal("toggle");
 }
 $('#topicModal').on('shown.bs.modal', async function (e) {
     let response = await fetch(`${domainName}/api/topic`, {
@@ -98,13 +119,13 @@ async function deleteClicked(major) {
     }
 }
 
-async function deleteTopicMajorClicked(topic) {
-    let deletedTopic = document.getElementById(topic);
-    let response = await fetch(`${domainName}/api/topic/delete`, {
+async function deleteTopicMajorClicked(node, topicId) {
+    let deletedTopic = node.parentElement;
+    let response = await fetch(`${domainName}/api/topic/deleteTopicMajor`, {
         method: 'DELETE',
         body: JSON.stringify({
             MajorName: `${clickedMajor}`,
-            TopicName: `${topic}`
+            TopicId: `${topicId}`
         })
     });
     if (response.ok) {
@@ -135,13 +156,16 @@ function editTopicClicked(topic) {
     let oldTopic = parent.children[1].innerText;
     let id = parent.children[0].dataset.id;
     let editedTopic = document.createElement("div");
-    editedTopic.innerHTML = `<input type='text' class='form-control m-2' name='major' placeholder=${oldTopic} required>
-                    \n<button class='btn btn-primary m-2' onclick=updateTopicClicked(this,'${id}')>Update</button>
-                    \n<button class='btn btn-danger m-2' onclick=cancelUpdateClicked(this)>Cancel</button>`;
+    editedTopic.innerHTML = `<input type='text' class='form-control m-2' name='major' placeholder="${oldTopic}" required>
+                    \n<button class='btn btn-primary m-2' onclick="updateTopicClicked(this,'${id}')">Update</button>
+                    \n<button class='btn btn-danger m-2' onclick="cancelUpdateTopicClicked(this,'${oldTopic}', '${id}')">Cancel</button>`;
     parent.replaceWith(editedTopic);
 }
 function cancelUpdateClicked(node, id) {
     node.parentElement.replaceWith(createMajorElement(id));
+}
+function cancelUpdateTopicClicked(node, oldTopic, id) {
+    node.parentElement.replaceWith(createTopicSelectionElement(oldTopic, id));
 }
 
 function updateClicked(node, oldTitle) {
@@ -174,6 +198,7 @@ function updateTopicClicked(node, id) {
     })
 }
 async function majorClicked(element, major) {
+    showTopicList.disabled = false;
     if (lastClickedMajor) {
         lastClickedMajor.classList.remove("btn-warning");
         lastClickedMajor.classList.add("btn-success");
@@ -190,7 +215,7 @@ async function majorClicked(element, major) {
         let res = await response.json();
         if (res.lenght != 0) {
             for (let i = 0; i < res.length; i++) {
-                topics.appendChild(createTopicElement(res[i]));
+                topics.appendChild(createTopicElement(res[i]["title"], res[i]["id"]));
             }
         }
         else {
@@ -219,13 +244,12 @@ function createMajorElement(name) {
     return div;
 }
 
-function createTopicElement(name) {
+function createTopicElement(name, id) {
     let div = document.createElement("div");
     div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
-    div.id = name;
+    div.dataset.id = id;
     div.innerHTML = `<p class="btn btn-warning text-light m-2">${name}</p>\n
-                            <div class="btn btn-primary m-2" onclick="editClicked('${name}')">Edit</div>\n
-                            <div class="btn btn-danger m-2" onclick="deleteTopicMajorClicked('${name}')">Delete</div>`;
+                            <div class="btn btn-danger m-2" onclick="deleteTopicMajorClicked(this ,'${id}')">Delete</div>`;
     return div;
 }
 
