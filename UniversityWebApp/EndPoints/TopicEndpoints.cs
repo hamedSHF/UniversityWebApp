@@ -4,6 +4,7 @@ using RabbitMQ.Client;
 using UniversityWebApp.DataAccess.Interfaces;
 using UniversityWebApp.Model;
 using UniversityWebApp.Model.RequestTypes;
+using UniversityWebApp.Model.ResponseTypes;
 
 namespace UniversityWebApp.EndPoints
 {
@@ -11,13 +12,25 @@ namespace UniversityWebApp.EndPoints
     {
         public static RouteGroupBuilder MapTopicEndpoints(this RouteGroupBuilder builder)
         {
+            builder.MapGet("/", GetTopics);
             builder.MapGet("/{major:required}", GetTopicsByMajor);
-            builder.MapPost("/add", AddTopic);
-            builder.MapDelete("/delete", DeleteTopic);
-            builder.MapPut("/update", UpdateTopic);
+            builder.MapPost("/addTopicMajor", AddTopicMajor);
+            builder.MapPost("/addTopic", AddTopic);
+            builder.MapDelete("/deleteTopicMajor", DeleteTopicMajor);
+            builder.MapDelete("/deleteTopic/{id:required}", DeleteTopic);
+            builder.MapPut("/updateTopicMajor", UpdateTopicMajor);
+            builder.MapPut("/updateTopic", UpdateTopic);
             return builder;
         }
-
+        public static async Task<Ok<IEnumerable<TopicResponse>>> GetTopics(
+            ICourseTopicRepository topicRepository)
+        {
+            return TypedResults.Ok((await topicRepository.GetAll()).Select(x => new TopicResponse
+            {
+                Id = x.TopicId,
+                Title = x.Title
+            }));
+        }
         public static async Task<Results<Ok<IEnumerable<string>>, BadRequest<string>>> GetTopicsByMajor(
             string major,
             IMajorRepository majorRepository)
@@ -30,7 +43,7 @@ namespace UniversityWebApp.EndPoints
             }
             return TypedResults.BadRequest($"{major} not founded");
         }
-        public static async Task<Results<Created, BadRequest<string>>> AddTopic(
+        public static async Task<Results<Created, BadRequest<string>>> AddTopicMajor(
             [FromBody] TopicRequest topicRequest,
             IMajorRepository majorRepository,
             ICourseTopicRepository topicRepository)
@@ -49,7 +62,17 @@ namespace UniversityWebApp.EndPoints
                 return TypedResults.BadRequest($"{topicRequest.MajorName} not founded");
             }
         }
-        public static async Task<Results<Ok, BadRequest<string>>> DeleteTopic(
+        public static async Task<Results<Created<ushort>, BadRequest<string>>> AddTopic(
+            [FromBody] string title,
+            ICourseTopicRepository topicRepository)
+        {
+            if (string.IsNullOrWhiteSpace(title))
+                return TypedResults.BadRequest("Title is not correct");
+            var addedEntity = await topicRepository.Add(CourseTopics.CreateTopic(title));
+            await topicRepository.SaveChanges();
+            return TypedResults.Created(string.Empty, addedEntity.TopicId);
+        }
+        public static async Task<Results<Ok, BadRequest<string>>> DeleteTopicMajor(
             [FromBody] TopicRequest request,
             ICourseTopicRepository topicRepository,
             IMajorRepository majorRepository)
@@ -73,20 +96,55 @@ namespace UniversityWebApp.EndPoints
                 return TypedResults.BadRequest($"{request.MajorName} not founded");
             }
         }
+        public static async Task<Results<Ok, BadRequest<string>>> DeleteTopic(
+            int id,
+            ICourseTopicRepository topicRepository)
+        {
+            if (id < ushort.MaxValue && id > ushort.MinValue)
+            {
+                var entity = await topicRepository.GetTopic((ushort)id);
+                if (entity != null)
+                {
+                    topicRepository.Delete(entity);
+                    await topicRepository.SaveChanges();
+                    return TypedResults.Ok();
+                }
+                return TypedResults.BadRequest("Topic not founded");
+            }
+            return TypedResults.BadRequest("Id is not valid");
+        }
         public static async Task<Results<Ok, BadRequest<string>>> UpdateTopic(
             [FromBody] UpdateTopicRequest request,
+            ICourseTopicRepository topicRepository)
+        {
+            if(request != null && request.Id > 0 && !string.IsNullOrEmpty(request.Name))
+            {
+                var topic = await topicRepository.GetTopic((ushort)request.Id);
+                if(topic != null)
+                {
+                    topic.Title = request.Name;
+                    topicRepository.Update(topic);
+                    await topicRepository.SaveChanges();
+                    return TypedResults.Ok();
+                }
+                return TypedResults.BadRequest($"Topic with id {request.Id} not founded");
+            }
+            return TypedResults.BadRequest("Wrong data recieved");
+        }
+        public static async Task<Results<Ok, BadRequest<string>>> UpdateTopicMajor(
+            [FromBody] UpdateTopicMajorRequest request,
             IMajorRepository majorRepository,
             ICourseTopicRepository topicRepository)
         {
             var major = await majorRepository.GetMajor(request.MajorName);
             if (major != null)
             {
-                var topic = await topicRepository.GetTopic(request.OldTopicName);
+                var topic = await topicRepository.GetTopic((ushort)request.Id);
                 if (topic != null)
                 {
                     topicRepository.Delete(topic);
                     await topicRepository.Add(CourseTopics.CreateTopic(
-                        request.NewTopicName,
+                        request.Name,
                         new List<Major>
                     {
                         major
@@ -94,7 +152,7 @@ namespace UniversityWebApp.EndPoints
                     await topicRepository.SaveChanges();
                     return TypedResults.Ok();
                 }
-                return TypedResults.BadRequest($"{request.OldTopicName} not founded");
+                return TypedResults.BadRequest($"{request.Id} not founded");
             }
             else
             {

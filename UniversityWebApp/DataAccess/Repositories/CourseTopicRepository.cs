@@ -27,14 +27,20 @@ namespace UniversityWebApp.DataAccess.Repositories
            dbContext.CourseTopics.Remove(entity);
         }
 
+        public async Task<bool> Exists(ushort id)
+        {
+            return await dbContext.CourseTopics.CountAsync(x => x.TopicId == id) > 0 ?
+                true : false;
+        }
+
         public async Task<IEnumerable<CourseTopics>> GetAll()
         {
             return await dbContext.CourseTopics.ToListAsync();
         }
 
-        public async Task<CourseTopics?> GetTopic(string topic)
+        public async Task<CourseTopics?> GetTopic(ushort id)
         {
-            return await dbContext.CourseTopics.FirstOrDefaultAsync(x => x.Title == topic);
+            return await dbContext.CourseTopics.FirstOrDefaultAsync(x => x.TopicId == id);
         }
 
         public async Task<int> SaveChanges()

@@ -1,7 +1,4 @@
-html {
-  font-size: 14px;
-}
-
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Quicksand:wght@300..700&display=swap');
 @media (min-width: 768px) {
   html {
     font-size: 16px;
@@ -13,12 +10,17 @@ html {
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
+    font-family: "Open Sans", "Quicksand", "Comorant";
 }
-
+label
+{
+    font-family: "Quicksand";
+}
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    font-family: "Open Sans", "Quicksand", "Comorant"
 }
 a
 {
