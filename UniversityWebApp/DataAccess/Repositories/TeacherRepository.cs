@@ -48,5 +48,10 @@ namespace UniversityWebApp.DataAccess.Repositories
         {
             return await dbContext.Teachers.ToListAsync();
         }
+
+        public async Task<Teacher?> GetTeacherById(ushort id)
+        {
+            return await dbContext.Teachers.FirstOrDefaultAsync(x => x.TeacherId == id);
+        }
     }
 }

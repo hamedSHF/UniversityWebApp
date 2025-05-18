@@ -1,4 +1,4 @@
-﻿namespace UniversityWebApp.Model.RequestTypes
+﻿namespace UniversityWebApp.Model.RequestTypes.MajorRequest
 {
     public class UpdateMajorRequest
     {

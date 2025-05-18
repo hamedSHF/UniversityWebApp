@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using UniversityWebApp.DataAccess.Interfaces;
 using UniversityWebApp.Model;
-using UniversityWebApp.Model.RequestTypes;
+using UniversityWebApp.Model.RequestTypes.MajorRequest;
 using UniversityWebApp.Model.ResponseTypes;
 
 namespace UniversityWebApp.EndPoints

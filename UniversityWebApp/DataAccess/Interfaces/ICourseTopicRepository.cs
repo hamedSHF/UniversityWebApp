@@ -4,7 +4,7 @@ namespace UniversityWebApp.DataAccess.Interfaces
 {
     public interface ICourseTopicRepository : IRepository<CourseTopics>
     {
-        Task<CourseTopics?> GetTopic(ushort id);
+        Task<CourseTopics?> GetById(ushort id);
         Task<bool> Exists(ushort id);
     }
 }

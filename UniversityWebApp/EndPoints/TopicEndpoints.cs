@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using RabbitMQ.Client;
 using UniversityWebApp.DataAccess.Interfaces;
 using UniversityWebApp.Model;
-using UniversityWebApp.Model.RequestTypes.TopicRequests;
+using UniversityWebApp.Model.RequestTypes.TopicRequest;
 using UniversityWebApp.Model.ResponseTypes;
 
 namespace UniversityWebApp.EndPoints
@@ -57,7 +57,7 @@ namespace UniversityWebApp.EndPoints
                 foreach (var topicId in topicRequest.TopicIds)
                 {
                     var topic = major.Topics.Count(x => x.TopicId == topicId) > 0 
-                        ? await topicRepository.GetTopic((ushort)topicId) : null;
+                        ? await topicRepository.GetById((ushort)topicId) : null;
                     if (topic != null)
                         major.Topics.Add(topic);
                 }
@@ -104,7 +104,7 @@ namespace UniversityWebApp.EndPoints
         {
             if (id < ushort.MaxValue && id > ushort.MinValue)
             {
-                var entity = await topicRepository.GetTopic((ushort)id);
+                var entity = await topicRepository.GetById((ushort)id);
                 if (entity != null)
                 {
                     topicRepository.Delete(entity);
@@ -121,7 +121,7 @@ namespace UniversityWebApp.EndPoints
         {
             if(request != null && request.Id > 0 && !string.IsNullOrEmpty(request.Name))
             {
-                var topic = await topicRepository.GetTopic((ushort)request.Id);
+                var topic = await topicRepository.GetById((ushort)request.Id);
                 if(topic != null)
                 {
                     topic.Title = request.Name;

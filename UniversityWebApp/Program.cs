@@ -5,6 +5,7 @@ using UniversityWebApp.DataAccess;
 using UniversityWebApp.EndPoints;
 using UniversityWebApp.Model;
 using UniversityWebApp.Services;
+using UniversityWebApp.Services.CodeGenerator;
 
 namespace UniversityWebApp
 {
@@ -32,6 +33,7 @@ namespace UniversityWebApp
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
             
             builder.Services.AddSingleton<IUserNameGenerator, UserNameGenerator>();
+            builder.Services.AddSingleton<CourseCodeGenerator>();
 
             builder.Services.AddAuthorization(options =>
             {
@@ -73,7 +75,9 @@ namespace UniversityWebApp
             app.MapGroup("/api/topic")
                 .MapTopicEndpoints()
                 .WithTags("Topic api");
-
+            app.MapGroup("/api/course")
+                .MapCourseEndpoints()
+                .WithTags("Course api");
             app.Run();
         }
     }

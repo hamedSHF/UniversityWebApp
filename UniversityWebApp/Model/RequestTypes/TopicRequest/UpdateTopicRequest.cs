@@ -1,4 +1,4 @@
-﻿namespace UniversityWebApp.Model.RequestTypes.TopicRequests
+﻿namespace UniversityWebApp.Model.RequestTypes.TopicRequest
 {
     public class UpdateTopicRequest
     {

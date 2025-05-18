@@ -6,7 +6,7 @@ namespace UniversityWebApp.Model
     public class Teacher
     {
         [Key]
-        public Guid TeacherId { get; set; }
+        public ushort TeacherId { get; set; }
         public string TeacherUserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }

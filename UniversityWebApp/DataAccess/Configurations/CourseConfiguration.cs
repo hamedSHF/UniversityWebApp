@@ -12,6 +12,9 @@ namespace UniversityWebApp.DataAccess.Configurations
             builder.Property(x => x.CourseID)
                 .ValueGeneratedOnAdd();
 
+            builder.Property(x => x.CourseCode)
+                .IsRequired()
+                .HasMaxLength(50);
             builder.OwnsMany<CourseDetails>(x => x.CourseDetails, builder =>
             {
                 builder.Property(x => x.CourseDescription)

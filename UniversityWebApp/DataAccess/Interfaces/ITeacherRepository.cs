@@ -4,6 +4,7 @@ namespace UniversityWebApp.DataAccess.Interfaces
 {
     public interface ITeacherRepository : IRepository<Teacher>
     {
-        Task<IEnumerable<Teacher>> GetAll(bool includeCourses); 
+        Task<IEnumerable<Teacher>> GetAll(bool includeCourses);
+        Task<Teacher?> GetTeacherById(ushort id);
     }
 }

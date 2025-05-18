@@ -31,11 +31,6 @@ namespace UniversityWebApp.DataAccess.Repositories
             return await dbContext.Courses.ToListAsync();
         }
 
-        public async Task<Course?> GetById(int id)
-        {
-            return await dbContext.Courses.FirstOrDefaultAsync(x => x.CourseID == id);
-        }
-
         public void Update(Course entity)
         {
             dbContext.Update(entity);
@@ -53,6 +48,11 @@ namespace UniversityWebApp.DataAccess.Repositories
         public async Task<IEnumerable<Course>> GetAll()
         {
             return await dbContext.Courses.ToListAsync();
+        }
+
+        public async Task<Course?> GetById(ushort courseId)
+        {
+            return await dbContext.Courses.FirstOrDefaultAsync(x => x.CourseID == courseId);
         }
     }
 }

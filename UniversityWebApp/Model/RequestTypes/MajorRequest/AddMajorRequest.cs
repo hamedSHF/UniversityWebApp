@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace UniversityWebApp.Model.RequestTypes
+namespace UniversityWebApp.Model.RequestTypes.MajorRequest
 {
     public class AddMajorRequest
     {

@@ -38,7 +38,7 @@ namespace UniversityWebApp.DataAccess.Repositories
             return await dbContext.CourseTopics.ToListAsync();
         }
 
-        public async Task<CourseTopics?> GetTopic(ushort id)
+        public async Task<CourseTopics?> GetById(ushort id)
         {
             return await dbContext.CourseTopics.FirstOrDefaultAsync(x => x.TopicId == id);
         }
