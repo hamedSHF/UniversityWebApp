@@ -1,9 +1,9 @@
-﻿
-<div class="container home d-flex justify-content-center align-items-center">
-    <a class="btn-primary p-3 m-3 w-25 h-25 rounded">Student Panel</a>
-    <a class="btn-primary p-3 m-3 w-25 h-25 rounded" asp-controller="Admin" asp-action="Index">Admin Panel</a>
-    <a class="btn-primary p-3 m-3 w-25 h-25 rounded">Teacher Panel</a>
-    @section css{
-        <link rel="stylesheet" href="~/@(nameof(UniversityWebApp)).styles.css" asp-append-version="true" />
-    }
+﻿@section css {
+    <link rel="stylesheet" href="~/css//Homepage.css" asp-append-version="true" />
+}
+<h1 class="text-center mt-5">Welcome to UniWebApp</h1>
+<div class="home row align-items-center">
+    <a class="panel p-3 m-3 rounded">Student Panel</a>
+    <a class="panel p-3 m-3 rounded" asp-controller="Admin" asp-action="Index">Admin Panel</a>
+    <a class="panel p-3 m-3 rounded">Teacher Panel</a>
 </div>

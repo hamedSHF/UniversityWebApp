@@ -239,8 +239,8 @@ function createMajorElement(name) {
     div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
     div.id = name;
     div.innerHTML = `<p class="btn btn-success text-light m-2" onclick=majorClicked(this, '${name}')>${name}</p>\n
-                            <div class="btn btn-primary m-2" onclick="editClicked('${name}')">Edit</div>\n
-                            <div class="btn btn-danger m-2" onclick="deleteClicked('${name}')">Delete</div>`;
+                            <div class="btn btn-primary m-2" onclick="editClicked('${name}')"><i class="bi bi-pencil-square"></i></i></div>\n
+                            <div class="btn btn-danger m-2" onclick="deleteClicked('${name}')"><i class="bi bi-trash-fill"></i></div>`;
     return div;
 }
 
@@ -249,7 +249,7 @@ function createTopicElement(name, id) {
     div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
     div.dataset.id = id;
     div.innerHTML = `<p class="btn btn-warning text-light m-2">${name}</p>\n
-                            <div class="btn btn-danger m-2" onclick="deleteTopicMajorClicked(this ,'${id}')">Delete</div>`;
+                            <div class="btn btn-danger m-2" onclick="deleteTopicMajorClicked(this ,'${id}')"><i class="bi bi-trash-fill"></i></div>`;
     return div;
 }
 
@@ -258,8 +258,8 @@ function createTopicSelectionElement(name, Id) {
     div.className = "bg-info rounded-1 d-inline-flex justify-content-between align-items-center m-2";
     div.innerHTML = `<input class="form-check-input m-2" type="checkbox" onchange="topicSelected(this)" data-id="${Id}">
                      <label class="form-check-label fs-3 m-2">${name}</label>
-                     <div class="btn btn-primary m-2" onclick="editTopicClicked(this)">Edit</div>
-                     <div class="btn btn-danger m-2" onclick="deleteTopicClicked(this)">Delete</div>`;
+                     <div class="btn btn-primary m-2" onclick="editTopicClicked(this)"><i class="bi bi-pencil-square"></i></div>
+                     <div class="btn btn-danger m-2" onclick="deleteTopicClicked(this)"><i class="bi bi-trash-fill"></i></div>`;
     return div;
 }
 

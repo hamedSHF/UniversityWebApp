@@ -1,0 +1,21 @@
+﻿.SectionContainer {
+    font-family: "Quicksand";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.option {
+    background-color: #00aaff;
+    color: black;
+    font-size: 30px;
+    transition: transform 0.1s ease,box-shadow 0.1s ease, background 0.1s ease;
+    cursor: pointer;
+    padding: 20px;
+}
+
+.option:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+    background: linear-gradient(45deg,#96FFFF 20%, #00aaff 90%);
+}
