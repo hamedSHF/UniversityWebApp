@@ -53,7 +53,7 @@ namespace UniversityWebApp.DataAccess.Repositories
                 SingleOrDefaultAsync(x => x.StudentUserName == userName);
             return student.StudentId;
         }
-        public async Task<bool> StudentExists(string firstName, string lastName)
+        public async Task<bool> Exists(string firstName, string lastName)
         {
             return await dbContext.Students.
                 CountAsync(x => x.FirstName == firstName && x.LastName == lastName) > 0;

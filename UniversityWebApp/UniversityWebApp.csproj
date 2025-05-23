@@ -7,6 +7,21 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Contracts\**" />
+    <Compile Remove="EndPoints\Validators\**" />
+    <Compile Remove="Views\Teacher\**" />
+    <Content Remove="Contracts\**" />
+    <Content Remove="EndPoints\Validators\**" />
+    <Content Remove="Views\Teacher\**" />
+    <EmbeddedResource Remove="Contracts\**" />
+    <EmbeddedResource Remove="EndPoints\Validators\**" />
+    <EmbeddedResource Remove="Views\Teacher\**" />
+    <None Remove="Contracts\**" />
+    <None Remove="EndPoints\Validators\**" />
+    <None Remove="Views\Teacher\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="AutoMapper" Version="13.0.1" />
     <PackageReference Include="MassTransit" Version="8.3.6" />
     <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.6" />
@@ -18,12 +33,6 @@
     </PackageReference>
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Contracts\" />
-    <Folder Include="EndPoints\Validators\" />
-    <Folder Include="Views\Teacher\" />
   </ItemGroup>
 
   <ItemGroup>

@@ -4,22 +4,45 @@ namespace Common
 {
     public class PasswordCreator
     {
-        public static string CreatePassword(string userName,string firstName,string lastName)
+        public static string CreateStudentPassword(string userName,string firstName,string lastName)
         {
             string password = string.Empty;
-            foreach (var item in PasswordRules.CheckRules)
+            foreach (var item in PasswordRules.StudentCheckRules)
             {
-                if(item == Rules.ContainsDigit)
+                switch (item)
                 {
-                    password += Regex.Match(userName, @"[\d]+").Value;
+                    case Rules.ContainsDigit:
+                        password += Regex.Match(userName, @"[\d]+").Value;
+                        break;
+                    case Rules.ContainsUpperCase:
+                        password += firstName.ToUpper().First();
+                        break;
+                    case Rules.ContainsLowerCase:
+                        password += lastName.ToLower().First();
+                        break;
                 }
-                if(item == Rules.ContainsUpperCase)
+            }
+            return password;
+        }
+        public static string CreateTeacherPassword(string userName, string firstName, string lastName)
+        {
+            string password = string.Empty;
+            foreach(var item in PasswordRules.TeacherCheckRules)
+            {
+                switch(item)
                 {
-                    password += firstName.ToUpper().First();
-                }
-                if(item == Rules.ContainsLowerCase)
-                {
-                    password += lastName.ToLower().First();
+                    case Rules.ContainsDigit:
+                        password += Regex.Match(userName, @"[\d]+").Value;
+                        break;
+                    case Rules.ContainsUpperCase:
+                        password += firstName.ToUpper().First();
+                        break;
+                    case Rules.ContainsLowerCase:
+                        password += lastName.ToLower().First();
+                        break;
+                    case Rules.ContainsNonAlphanumeric:
+                        password += "@";
+                        break;
                 }
             }
             return password;

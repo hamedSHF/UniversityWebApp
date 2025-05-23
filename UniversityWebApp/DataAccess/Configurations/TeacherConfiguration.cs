@@ -10,7 +10,7 @@ namespace UniversityWebApp.DataAccess.Configurations
         {
             builder.HasKey(x => x.TeacherId);
             builder.Property(x => x.TeacherId)
-                .ValueGeneratedOnAdd();
+                .HasMaxLength(16);
 
             builder.HasIndex(x => x.TeacherUserName)
                 .IsUnique();

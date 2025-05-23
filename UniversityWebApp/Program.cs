@@ -32,7 +32,6 @@ namespace UniversityWebApp
             builder.Services.AddSerilog();
             builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
             
-            builder.Services.AddSingleton<IUserNameGenerator, UserNameGenerator>();
             builder.Services.AddSingleton<CourseCodeGenerator>();
 
             builder.Services.AddAuthorization(options =>

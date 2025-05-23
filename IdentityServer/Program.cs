@@ -25,10 +25,9 @@ namespace IdentityServer
             builder.Services.AddControllersWithViews();
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
             {
-                options.Password.RequireNonAlphanumeric = PasswordRules.CheckRules.Exists(x => x == Rules.ContainsNonAlphanumeric);
-                options.Password.RequireDigit = PasswordRules.CheckRules.Exists(x => x == Rules.ContainsDigit);
-                options.Password.RequireLowercase = PasswordRules.CheckRules.Exists(x => x == Rules.ContainsLowerCase);
-                options.Password.RequireUppercase = PasswordRules.CheckRules.Exists(x => x == Rules.ContainsUpperCase);
+                options.Password.RequireDigit = PasswordRules.StudentCheckRules.Exists(x => x == Rules.ContainsDigit);
+                options.Password.RequireLowercase = PasswordRules.StudentCheckRules.Exists(x => x == Rules.ContainsLowerCase);
+                options.Password.RequireUppercase = PasswordRules.StudentCheckRules.Exists(x => x == Rules.ContainsUpperCase);
             })
                 .AddEntityFrameworkStores<AppDbContext>();
 

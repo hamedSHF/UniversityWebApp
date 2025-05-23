@@ -16,18 +16,15 @@ namespace UniversityWebApp.Model
 
         public static Course CreateCourse(string code, DateOnly startTime,
             DateOnly endTime, CourseTopics topic,
-            Teacher teacher, CourseDetails details)
-        {
-            var course = new Course
+            Teacher teacher, IEnumerable<CourseDetails> details)
+            => new Course
             {
                 CourseCode = code,
                 StartTime = startTime,
                 EndTime = endTime,
                 CourseTopic = topic,
                 Teacher = teacher,
+                CourseDetails = details.ToList()
             };
-            course.CourseDetails.Add(details);
-            return course;
-        }
     }
 }

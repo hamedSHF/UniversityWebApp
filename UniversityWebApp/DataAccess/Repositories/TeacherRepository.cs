@@ -49,9 +49,20 @@ namespace UniversityWebApp.DataAccess.Repositories
             return await dbContext.Teachers.ToListAsync();
         }
 
-        public async Task<Teacher?> GetTeacherById(ushort id)
+        public async Task<Teacher?> GetTeacherById(string id)
         {
             return await dbContext.Teachers.FirstOrDefaultAsync(x => x.TeacherId == id);
+        }
+
+        public async Task<bool> Exists(string firstName, string lastName)
+        {
+            return (await dbContext.Teachers.
+                CountAsync(x => x.FirstName == firstName && x.LastName == lastName)) > 0;
+        }
+
+        public async Task<int> GetIdOfLastRecord()
+        {
+            return int.TryParse(await dbContext.Teachers.Select(x => x.TeacherId).OrderBy(x => x).LastAsync(), out int result) ? result : -1;
         }
     }
 }

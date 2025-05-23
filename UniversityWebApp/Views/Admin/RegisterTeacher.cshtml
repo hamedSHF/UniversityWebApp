@@ -1,0 +1,35 @@
+﻿@model UniversityWebApp.Model.DTOs.AddTeacherDto
+<div class="m-5 border rounded p-2 bg-light d-flex justify-content-center align-items-center">
+    <form asp-action="RegisterTeacher" class="p-3" method="post">
+        <div class="form-group m-3">
+            <lablel asp-for="FirstName" class="form-label">FirstName</lablel>
+            <input asp-for="FirstName" class="form-control" type="text" />
+            <span asp-validation-for="FirstName" class="text-danger" />
+        </div>
+        <div class="form-group m-3">
+            <lablel asp-for="LastName" class="form-label">LastName</lablel>
+            <input asp-for="LastName" class="form-control" type="text" />
+            <span asp-validation-for="LastName" class="text-danger" />
+        </div>
+        <div class="form-group m-3">
+            <lablel asp-for="BirthDate" class="form-label">BirthDate</lablel>
+            <input asp-for="BirthDate" class="form-control" type="date" />
+            <span asp-validation-for="BirthDate" class="text-danger" />
+        </div>
+        <div class="form-group m-3">
+            <lablel asp-for="StartAt" class="form-label">Start At</lablel>
+            <input asp-for="StartAt" class="form-control" type="date" />
+            <span asp-validation-for="StartAt" class="text-danger" />
+        </div>
+        <div class="form-group m-3">
+            <lablel asp-for="EndAt" class="form-label">End At</lablel>
+            <input asp-for="EndAt" class="form-control" type="date" />
+            <span asp-validation-for="EndAt" class="text-danger" />
+        </div>
+        <div class="form-group m-2">
+            <lablel asp-for="Degree" class="form-label">Degree</lablel>
+            <input type="text" class="form-control" asp-for="Degree"/>
+        </div>
+        <button type="submit" class="btn-primary">Register</button>
+    </form>
+</div>

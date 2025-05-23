@@ -26,7 +26,6 @@ namespace UniversityWebApp.Controllers
         private readonly ITeacherRepository teacherRepository;
         private readonly IStudentRepository studentRepository;
         private readonly IOptions<IdentityAddressesOptions> identityOptions;
-        private readonly IUserNameGenerator userNameGenerator;
         private readonly IPublishEndpoint publishEndpoint;
         private readonly ILogger<AdminController> adminLogger;
         private readonly IMapper mapper;
@@ -35,7 +34,6 @@ namespace UniversityWebApp.Controllers
             ICourseRepository courseRepository,
             IMajorRepository majorRepository,
             IOptions<IdentityAddressesOptions> identityOptions,
-            IUserNameGenerator userNameGenerator,
             IPublishEndpoint publishEndpoint,
             ILogger<AdminController> adminLogger,
             IMapper mapper)
@@ -45,7 +43,6 @@ namespace UniversityWebApp.Controllers
             this.courseRepository = courseRepository;
             this.majorRepository = majorRepository;
             this.identityOptions = identityOptions;
-            this.userNameGenerator = userNameGenerator;
             this.publishEndpoint = publishEndpoint;
             this.adminLogger = adminLogger;
             this.mapper = mapper;
@@ -59,18 +56,18 @@ namespace UniversityWebApp.Controllers
         {
             try
             {
-                if (await studentRepository.StudentExists(studentDto.FirstName, studentDto.LastName))
+                if (await studentRepository.Exists(studentDto.FirstName, studentDto.LastName))
                     return StatusCode(StatusCodes.Status409Conflict, "Student already exists.");
                 var count = await studentRepository.CountAll();
-                var student = Student.CreateStudent(userNameGenerator.GenerateUserName(count), studentDto);
+                var student = Student.CreateStudent(UserNameGenerator.GenerateStudentUsername(count), studentDto);
                 var addedEntity = await studentRepository.Add(student);
                 await studentRepository.SaveChanges();
-                if (addedEntity != null)
+                if (addedEntity.StudentId != null)
                 {
                     string userName = addedEntity.StudentUserName;
                     await publishEndpoint.Publish(new CreatedStudentEvent
                         (addedEntity.StudentId.ToString(), userName,
-                        PasswordCreator.CreatePassword(userName, addedEntity.FirstName, addedEntity.LastName)));
+                        PasswordCreator.CreateStudentPassword(userName, addedEntity.FirstName, addedEntity.LastName)));
                     return RedirectToAction(nameof(Confirmation), new { message = $"User with Id {addedEntity.StudentId} added." });
                 }
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -91,6 +88,39 @@ namespace UniversityWebApp.Controllers
                 FirstName = x.FirstName,
                 LastName = x.LastName,
             }));
+        }
+        [HttpGet]
+        public IActionResult RegisterTeacher() => View();
+        [HttpPost]
+        public async Task<IActionResult> RegisterTeacher([FromForm] AddTeacherDto teacherDto)
+        {
+            try
+            {
+                if (await teacherRepository.Exists(teacherDto.FirstName, teacherDto.LastName))
+                    return StatusCode(StatusCodes.Status409Conflict, "Teacher already exists.");
+                var count = await teacherRepository.CountAll();
+                var id = count > 0 ? await teacherRepository.GetIdOfLastRecord() + 1 : 1;
+                var teacher = Teacher.CreateTeacher(
+                    id,
+                    UserNameGenerator.
+                    GenerateTeacherUsername(count,
+                    teacherDto.FirstName.First().ToString() + teacherDto.LastName.First()), teacherDto);
+                var addedTeacher = await teacherRepository.Add(teacher);
+                await teacherRepository.SaveChanges();
+                if (addedTeacher != null)
+                {
+                    string userName = addedTeacher.TeacherUserName;
+                    await publishEndpoint.Publish(new CreatedTeacherEvent(addedTeacher.TeacherId.ToString(), userName,
+                        PasswordCreator.CreateTeacherPassword(userName, addedTeacher.FirstName, addedTeacher.LastName)));
+                    return RedirectToAction(nameof(Confirmation), new { message = $"User with Id {addedTeacher.TeacherId} added." });
+                }
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
+            catch (Exception ex)
+            {
+                adminLogger.LogError(ex, "Error occured while adding teacher.");
+                return StatusCode(StatusCodes.Status500InternalServerError);
+            }
         }
         [HttpGet]
         public IActionResult Confirmation(string message)

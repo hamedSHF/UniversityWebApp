@@ -2,12 +2,16 @@
 
 namespace UniversityWebApp.Services
 {
-    public class UserNameGenerator : IUserNameGenerator
+    public class UserNameGenerator
     {
-        public string GenerateUserName(int counter)
+        private static string year = DateTime.UtcNow.AddYears(-622).Year.ToString(CultureInfo.GetCultureInfo("fa-Ir"));
+        public static string GenerateStudentUsername(int counter)
         {
-            var year = DateTime.UtcNow.AddYears(-622).Year.ToString(CultureInfo.GetCultureInfo("fa-Ir"));
             return year + (++counter);
+        }
+        public static string GenerateTeacherUsername(int counter,string prefix)
+        {
+            return prefix + (++counter) + year;
         }
     }
 }
