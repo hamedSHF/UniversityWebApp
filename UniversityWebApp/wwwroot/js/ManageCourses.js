@@ -238,7 +238,7 @@ function createMajorElement(name) {
     let div = document.createElement("div");
     div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
     div.id = name;
-    div.innerHTML = `<p class="btn btn-success text-light m-2" onclick=majorClicked(this, '${name}')>${name}</p>\n
+    div.innerHTML = `<p class="btn btn-success text-light m-2" onclick="majorClicked(this, '${name}')">${name}</p>\n
                             <div class="btn btn-primary m-2" onclick="editClicked('${name}')"><i class="bi bi-pencil-square"></i></i></div>\n
                             <div class="btn btn-danger m-2" onclick="deleteClicked('${name}')"><i class="bi bi-trash-fill"></i></div>`;
     return div;

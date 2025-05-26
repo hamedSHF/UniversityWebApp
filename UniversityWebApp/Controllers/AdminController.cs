@@ -66,8 +66,8 @@ namespace UniversityWebApp.Controllers
                 {
                     string userName = addedEntity.StudentUserName;
                     await publishEndpoint.Publish(new CreatedStudentEvent
-                        (addedEntity.StudentId.ToString(), userName,
-                        PasswordCreator.CreateStudentPassword(userName, addedEntity.FirstName, addedEntity.LastName)));
+                        (userName,PasswordCreator.
+                        CreateStudentPassword(userName, addedEntity.FirstName, addedEntity.LastName)));
                     return RedirectToAction(nameof(Confirmation), new { message = $"User with Id {addedEntity.StudentId} added." });
                 }
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -98,19 +98,16 @@ namespace UniversityWebApp.Controllers
             {
                 if (await teacherRepository.Exists(teacherDto.FirstName, teacherDto.LastName))
                     return StatusCode(StatusCodes.Status409Conflict, "Teacher already exists.");
-                var count = await teacherRepository.CountAll();
-                var id = count > 0 ? await teacherRepository.GetIdOfLastRecord() + 1 : 1;
                 var teacher = Teacher.CreateTeacher(
-                    id,
                     UserNameGenerator.
-                    GenerateTeacherUsername(count,
+                    GenerateTeacherUsername((await teacherRepository.CountAll()),
                     teacherDto.FirstName.First().ToString() + teacherDto.LastName.First()), teacherDto);
                 var addedTeacher = await teacherRepository.Add(teacher);
                 await teacherRepository.SaveChanges();
                 if (addedTeacher != null)
                 {
                     string userName = addedTeacher.TeacherUserName;
-                    await publishEndpoint.Publish(new CreatedTeacherEvent(addedTeacher.TeacherId.ToString(), userName,
+                    await publishEndpoint.Publish(new CreatedTeacherEvent(userName,
                         PasswordCreator.CreateTeacherPassword(userName, addedTeacher.FirstName, addedTeacher.LastName)));
                     return RedirectToAction(nameof(Confirmation), new { message = $"User with Id {addedTeacher.TeacherId} added." });
                 }

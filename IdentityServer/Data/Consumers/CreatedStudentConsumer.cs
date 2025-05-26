@@ -11,7 +11,6 @@ namespace IdentityServer.Data.Consumers
         {
             await userManager.CreateAsync(new ApplicationUser
             {
-                Id = context.Message.id,
                 UserName = context.Message.userName
             }, context.Message.password);
             //TODO: what if saving gets failed?

@@ -7,7 +7,7 @@ namespace UniversityWebApp.Model
     public class Teacher
     {
         [Key]
-        public string TeacherId { get; set; }
+        public int TeacherId { get; set; }
         public string TeacherUserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
@@ -17,10 +17,9 @@ namespace UniversityWebApp.Model
         public string Degree { get; set; }
         public ICollection<Course> Courses { get; private set; } = new List<Course>();
 
-        public static Teacher CreateTeacher(int id,string userName, AddTeacherDto dto) =>
+        public static Teacher CreateTeacher(string userName, AddTeacherDto dto) =>
             new Teacher
             {
-                TeacherId = id.ToString(),
                 TeacherUserName = userName,
                 FirstName = dto.FirstName,
                 LastName = dto.LastName,

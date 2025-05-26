@@ -49,7 +49,7 @@ namespace UniversityWebApp.DataAccess.Repositories
             return await dbContext.Teachers.ToListAsync();
         }
 
-        public async Task<Teacher?> GetTeacherById(string id)
+        public async Task<Teacher?> GetTeacherById(int id)
         {
             return await dbContext.Teachers.FirstOrDefaultAsync(x => x.TeacherId == id);
         }
@@ -58,11 +58,6 @@ namespace UniversityWebApp.DataAccess.Repositories
         {
             return (await dbContext.Teachers.
                 CountAsync(x => x.FirstName == firstName && x.LastName == lastName)) > 0;
-        }
-
-        public async Task<int> GetIdOfLastRecord()
-        {
-            return int.TryParse(await dbContext.Teachers.Select(x => x.TeacherId).OrderBy(x => x).LastAsync(), out int result) ? result : -1;
         }
     }
 }

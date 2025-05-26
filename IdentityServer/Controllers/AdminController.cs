@@ -45,5 +45,19 @@ namespace IdentityServer.Controllers
             }
             return BadRequest();
         }
+        [HttpPost]
+        public async Task<string> GetTokenTest(LoginRequestBody request)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await loginService.Login(request, "Admin");
+                if(result.ResponseState == ResponseState.OK)
+                {
+                    return result.JWTToken;
+                }
+                return string.Empty;
+            }
+            return string.Empty;
+        }
     }
 }

@@ -38,7 +38,7 @@ namespace UniversityWebApp.EndPoints
         {
             //TODO: Validate request
             var topic = await topicRepository.GetById((ushort)courseRequest.TopicId);
-            var teacher = await teacherRepository.GetTeacherById(courseRequest.TeacherId.ToString());
+            var teacher = await teacherRepository.GetTeacherById(courseRequest.TeacherId);
             if(topic != null)
             {
                 var count = await courseRepository.CountAll();
