@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
-using RabbitMQ.Client;
 using UniversityWebApp.DataAccess.Interfaces;
 using UniversityWebApp.Model;
 using UniversityWebApp.Model.RequestTypes.TopicRequest;
@@ -46,7 +45,7 @@ namespace UniversityWebApp.EndPoints
             }
             return TypedResults.BadRequest($"{major} not founded");
         }
-        public static async Task<Results<Created, BadRequest<string>>> AddTopicMajor(
+        public static async Task<Results<Ok, BadRequest<string>>> AddTopicMajor(
             [FromBody] AddTopicMajorRequest topicRequest,
             IMajorRepository majorRepository,
             ICourseTopicRepository topicRepository)
@@ -56,18 +55,18 @@ namespace UniversityWebApp.EndPoints
             {
                 foreach (var topicId in topicRequest.TopicIds)
                 {
-                    var topic = major.Topics.Count(x => x.TopicId == topicId) > 0 
+                    var topic = major.Topics.Count(x => x.TopicId == topicId) == 0 
                         ? await topicRepository.GetById((ushort)topicId) : null;
                     if (topic != null)
                         major.Topics.Add(topic);
                 }
                 majorRepository.Update(major);
                 await majorRepository.SaveChanges();
-                return TypedResults.Created();
+                return TypedResults.Ok();
             }
             return TypedResults.BadRequest($"{topicRequest.MajorName} not founded");
         }
-        public static async Task<Results<Created<ushort>, BadRequest<string>>> AddTopic(
+        public static async Task<Results<Created<int>, BadRequest<string>>> AddTopic(
             [FromBody] string title,
             ICourseTopicRepository topicRepository)
         {

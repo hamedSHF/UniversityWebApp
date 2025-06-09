@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using UniversityWebApp.DataAccess;
 using UniversityWebApp.DataAccess.Interfaces;
 using UniversityWebApp.Model;
 
@@ -50,7 +49,7 @@ namespace UniversityWebApp.DataAccess.Repositories
             return await dbContext.Courses.ToListAsync();
         }
 
-        public async Task<Course?> GetById(ushort courseId)
+        public async Task<Course?> GetById(int courseId)
         {
             return await dbContext.Courses.FirstOrDefaultAsync(x => x.CourseID == courseId);
         }

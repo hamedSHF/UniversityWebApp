@@ -14,6 +14,7 @@ namespace UniversityWebApp.EndPoints
         public static RouteGroupBuilder MapCourseEndpoints(this  RouteGroupBuilder builder)
         {
             builder.MapGet("/", GetCourses);
+            builder.MapGet("/{topicId:int}", GetCoursesByTopic);
             builder.MapPost("/", AddCourse);
             builder.MapDelete("/{courseId:int}", DeleteCourse);
             return builder;
@@ -24,10 +25,29 @@ namespace UniversityWebApp.EndPoints
             return TypedResults.Ok((await courseRepository.GetAll()).Select(x => new CourseResponse
             {
                 CourseCode = x.CourseCode,
-                StartTime = x.StartTime,
-                EndTime = x.EndTime,
+                StartDate = x.StartTime,
+                EndDate = x.EndTime,
                 Details = x.CourseDetails
             }));
+        }
+        public static async Task<Results<Ok<IEnumerable<CourseResponse>>, BadRequest<string>>> GetCoursesByTopic(
+            int topicId,
+            ICourseTopicRepository topicRepository,
+            ICourseRepository courseRepository)
+        {
+            if (topicId <= 0)
+                return TypedResults.BadRequest("TopicId is not valid");
+            if (!(await topicRepository.Exists(topicId)))
+                return TypedResults.BadRequest($"Topic {topicId} not founded!");
+            return TypedResults.Ok((await topicRepository.GetById(topicId, true)).Courses.Select(x => new CourseResponse
+            {
+                Id = x.CourseID,
+                CourseCode = x.CourseCode,
+                StartDate = x.StartTime,
+                EndDate = x.EndTime,
+                TeacherName = x.Teacher.GetFullName(),
+                Details = x.CourseDetails
+            })); 
         }
         public static async Task<Results<Created<int>, BadRequest<string>>> AddCourse(
             [FromBody] AddCourseRequest courseRequest,

@@ -58,7 +58,7 @@ namespace UniversityWebApp.EndPoints
 
             return TypedResults.Ok<IEnumerable<MajorResponse>>(majors);
         }
-        public static async Task<Results<Ok,BadRequest<string>>> UpdateMajor(
+        public static async Task<Results<Ok, BadRequest<string>>> UpdateMajor(
             UpdateMajorRequest majorRequest,
             [FromServices] IMajorRepository majorRepository)
         {
@@ -70,10 +70,7 @@ namespace UniversityWebApp.EndPoints
                 await majorRepository.SaveChanges();
                 return TypedResults.Ok();
             }
-            else
-            {
-                return TypedResults.BadRequest("Major not found");
-            }
+            return TypedResults.BadRequest("Major not found");
         }
         public static async Task<Results<Ok,BadRequest<string>>> DeleteMajor(
             string majorName,

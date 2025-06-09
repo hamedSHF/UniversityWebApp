@@ -9,9 +9,9 @@ namespace UniversityWebApp.Model.ResponseTypes
         public int Id { get; set; }
         public string CourseCode { get; set; }
         [JsonConverter(typeof(DateOnlyJsonConverter))]
-        public DateOnly StartTime { get; set; }
+        public DateOnly StartDate { get; set; }
         [JsonConverter(typeof(DateOnlyJsonConverter))]
-        public DateOnly EndTime { get; set;}
+        public DateOnly EndDate { get; set;}
         public string TeacherName { get; set; }
         public IEnumerable<CourseDetails> Details { get; set; }
     }

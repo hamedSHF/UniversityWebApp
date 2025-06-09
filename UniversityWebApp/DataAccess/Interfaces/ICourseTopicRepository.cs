@@ -1,10 +1,11 @@
-﻿using UniversityWebApp.Model;
+﻿using System.Diagnostics.Eventing.Reader;
+using UniversityWebApp.Model;
 
 namespace UniversityWebApp.DataAccess.Interfaces
 {
     public interface ICourseTopicRepository : IRepository<CourseTopics>
     {
-        Task<CourseTopics?> GetById(ushort id);
-        Task<bool> Exists(ushort id);
+        Task<CourseTopics?> GetById(int id, bool includeCourses = false);
+        Task<bool> Exists(int id);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection.Metadata.Ecma335;
 using UniversityWebApp.Model.DTOs;
 
 namespace UniversityWebApp.Model
@@ -28,5 +29,6 @@ namespace UniversityWebApp.Model
                 EndAt = dto.EndAt,
                 Degree = dto.Degree
             };
+        public string GetFullName() =>  FirstName + LastName;
     }
 }

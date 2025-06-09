@@ -4,7 +4,7 @@ namespace UniversityWebApp.Model
 {
     public class CourseTopics
     {
-        public ushort TopicId { get; set; }
+        public int TopicId { get; set; }
         public string Title { get; set; }
         public ICollection<Major> Majors { get; private set; } = new List<Major>();
         public ICollection<Course> Courses { get; private set; } = new List<Course>();

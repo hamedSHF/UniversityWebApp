@@ -3,13 +3,19 @@ const addTopic = document.getElementById("addTopic");
 const majors = document.getElementById("majors");
 const search = document.getElementById("searchBox");
 const topics = document.getElementById("topics");
-const modalBody = document.getElementById("modalBody");
+const courseList = document.getElementById("courseList");
+const modalBodyTopics = document.getElementById("modalBodyTopics");
 const addSelectedTopics = document.getElementById("addSelectedTopics");
 const showTopicList = document.getElementById("showTopicList");
+const addCourse = document.getElementById("addCourse");
+const deleteCourse = document.getElementById("deleteCourse");
+const details = document.getElementById("details");
+const addDetail = document.getElementById("addDetail");
 const domainName = 'https://localhost:7145';
 let newMajor;
 let newTopic;
 let clickedMajor;
+let clickedTopic;
 let lastClickedMajor;
 let checkTopicSelectionCounter = 0;
 
@@ -38,12 +44,12 @@ addMajor.onclick = function () {
 };
 addTopic.onclick = function () {
     newTopic = createInputElement();
-    modalBody.appendChild(newTopic, modalBody.lastChild);
+    modalBodyTopics.appendChild(newTopic, modalBodyTopics.lastChild);
     newTopic.children[1].onclick = topicDoneClicked;
 };
 addSelectedTopics.onclick = async function () {
     let selectedTopics = new Map();
-    let children = Array.from(modalBody.children); //Long topic list make this cast expensive?
+    let children = Array.from(modalBodyTopics.children); //Long topic list make this cast expensive?
     children.forEach(topic => {
         if (topic.children[0].checked)
             selectedTopics.set(topic.children[0].dataset.id, topic.children[1].innerText);
@@ -64,6 +70,53 @@ addSelectedTopics.onclick = async function () {
     }
     $("#topicModal").modal("toggle");
 }
+addDetail.onclick = function () {
+    let newDetail = document.createElement('div');
+    newDetail.className = "m-2 p-4 bg-primary-subtle rounded-3";
+    newDetail.innerHTML = `
+        <button class="btn btn-outline-danger" onclick="removeDetailClicked(this)"><i class="bi bi-x"></i></button>
+        <div class="row">
+          <div class="text-center col" style="float: right;">
+            StartTime:
+            <input class="form-control text-center" type="time">
+          </div>
+          <div class="text-center col">
+            Duration:
+            <input class="form-control text-center" type="time">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            ScheduleDay:
+            <select class="form-select">
+              <option>Monday</option>
+              <option>Tuesday</option>
+              <option>Wednesday</option>
+              <option>Thursday</option>
+              <option>Friday</option>
+            </select>
+          </div>
+          <div class="col">
+            Location:
+            <input class="form-control" type="text">
+          </div>
+        </div>
+        <div class="row">
+        <div class="col">
+          Description:
+          <input class="form-control" type="text">
+        </div>
+        <div class="col">
+          Capacity:
+          <input class="form-control" type="number" max="80" min="10">
+        </div>
+      </div>`;
+
+    details.append(newDetail);
+}
+function removeDetailClicked(element) {
+    details.removeChild(element.parentElement);
+}
 $('#topicModal').on('shown.bs.modal', async function (e) {
     let response = await fetch(`${domainName}/api/topic`, {
         method: "GET",
@@ -73,13 +126,13 @@ $('#topicModal').on('shown.bs.modal', async function (e) {
         let list = await response.json();
         if (list) {
             for (let i = 0; i < list.length; i++) {
-                modalBody.append(createTopicSelectionElement(list[i]["title"], list[i]["id"]));
+                modalBodyTopics.append(createTopicSelectionElement(list[i]["title"], list[i]["id"]));
             }
         }
     }
 });
 $('#topicModal').on('hidden.bs.modal', function (e) {
-    modalBody.innerHTML = '';
+    modalBodyTopics.innerHTML = '';
 })
 async function topicDoneClicked() {
     let topicName = newTopic.children[0].value;
@@ -89,8 +142,8 @@ async function topicDoneClicked() {
         headers: { "Content-Type": "application/json" }
     });
     if (response.status == 201) {
-        modalBody.removeChild(newTopic);
-        modalBody.appendChild(createTopicSelectionElement(topicName, await response.json()), modalBody.lastChild);
+        modalBodyTopics.removeChild(newTopic);
+        modalBodyTopics.appendChild(createTopicSelectionElement(topicName, await response.json()), modalBody.lastChild);
     }
 }
 async function doneClicked() {
@@ -138,7 +191,7 @@ async function deleteTopicClicked(topic) {
         method: "DELETE",
     });
     if (response.ok) {
-        modalBody.removeChild(parent);
+        modalBodyTopics.removeChild(parent);
     }
 }
 function editClicked(major) {
@@ -213,7 +266,7 @@ async function majorClicked(element, major) {
         element.classList.add("btn-warning");
         clearTopicSection();
         let res = await response.json();
-        if (res.lenght != 0) {
+        if (res.length != 0) {
             for (let i = 0; i < res.length; i++) {
                 topics.appendChild(createTopicElement(res[i]["title"], res[i]["id"]));
             }
@@ -223,6 +276,29 @@ async function majorClicked(element, major) {
         }
     }
     lastClickedMajor = element;
+}
+async function topicClicked(element) {
+    addCourse.disabled = false;
+
+    clickedTopic = element.innerText;
+    let response = await fetch(`${domainName}/api/course/${element.parentElement.dataset.id}`, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+    });
+    if (response.ok) {
+        element.classList.remove("btn-success");
+        element.classList.add("btn-warning");
+        clearCourseSection();
+        let res = await response.json();
+        if (res.length != 0) {
+            for (let i = 0; i < res.lenght; i++) {
+                courseList.appendChild(createCourseElement(res));
+            }
+        }
+        else {
+            alert("No courses yet");
+        }
+    }
 }
 function topicSelected(topic) {
     if (topic.checked) {
@@ -248,7 +324,7 @@ function createTopicElement(name, id) {
     let div = document.createElement("div");
     div.className = "d-inline-flex bg-info rounded-2 m-2 justify-content-between";
     div.dataset.id = id;
-    div.innerHTML = `<p class="btn btn-warning text-light m-2">${name}</p>\n
+    div.innerHTML = `<p class="btn btn-success text-light m-2" onclick="topicClicked(this)">${name}</p>\n
                             <div class="btn btn-danger m-2" onclick="deleteTopicMajorClicked(this ,'${id}')"><i class="bi bi-trash-fill"></i></div>`;
     return div;
 }
@@ -263,6 +339,29 @@ function createTopicSelectionElement(name, Id) {
     return div;
 }
 
+function createCourseElement(course) {
+    let tr = document.createElement("tr");
+    tr.dataset.id = course.id;
+    let keys = Object.keys(course);
+    for (let i = 0; i < keys.length; i++) {
+        let td = document.createElement("td");
+        switch (keys[i]) {
+            case 'CourseCode':
+                td.innerText = course[keys[i]];
+                break;
+            case 'StartDate':
+            case 'EndDate':
+            case 'TeacherName':
+                td.innerHTML = `<div class="text-center">${course[keys[i]]} <i class="bi bi-pencil-square m-2"></i></div>`;
+                break;
+            case 'Details':
+                td.innerHTML = `<div class="btn btn-primary">Show</div>`;
+                break;
+        }
+        tr.appendChild(td);
+    }
+    return tr;
+}
 function createInputElement() {
     let div = document.createElement("div");
     div.className = "form-group d-inline-flex";
@@ -274,3 +373,6 @@ function createInputElement() {
 let clearTopicSection = () => {
     topics.innerHTML = '';
 };
+let clearCourseSection = () => {
+    courseList.innerHTML = '';
+}

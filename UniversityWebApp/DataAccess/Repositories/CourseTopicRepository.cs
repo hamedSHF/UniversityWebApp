@@ -27,7 +27,7 @@ namespace UniversityWebApp.DataAccess.Repositories
            dbContext.CourseTopics.Remove(entity);
         }
 
-        public async Task<bool> Exists(ushort id)
+        public async Task<bool> Exists(int id)
         {
             return await dbContext.CourseTopics.CountAsync(x => x.TopicId == id) > 0 ?
                 true : false;
@@ -38,9 +38,12 @@ namespace UniversityWebApp.DataAccess.Repositories
             return await dbContext.CourseTopics.ToListAsync();
         }
 
-        public async Task<CourseTopics?> GetById(ushort id)
+        public async Task<CourseTopics?> GetById(int id, bool includeCourses = false)
         {
-            return await dbContext.CourseTopics.FirstOrDefaultAsync(x => x.TopicId == id);
+
+            return includeCourses ? await dbContext.CourseTopics.Include(x => x.Courses)
+                .FirstOrDefaultAsync(x => x.TopicId == id) :
+                await dbContext.CourseTopics.FirstOrDefaultAsync(x => x.TopicId == id);
         }
 
         public async Task<int> SaveChanges()
