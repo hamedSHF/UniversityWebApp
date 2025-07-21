@@ -77,6 +77,9 @@ namespace UniversityWebApp
             app.MapGroup("/api/course")
                 .MapCourseEndpoints()
                 .WithTags("Course api");
+            app.MapGroup("api/teacher")
+                .MapTeacherEndpoints()
+                .WithTags("Teacher api");
             app.Run();
         }
     }

@@ -1,0 +1,8 @@
+﻿input:user-invalid
+{
+    outline: 3px solid red;
+}
+input:user-valid
+{
+    outline: 3px solid green;
+}

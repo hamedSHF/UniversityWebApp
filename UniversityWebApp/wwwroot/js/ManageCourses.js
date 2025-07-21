@@ -4,6 +4,7 @@ const majors = document.getElementById("majors");
 const search = document.getElementById("searchBox");
 const topics = document.getElementById("topics");
 const courseList = document.getElementById("courseList");
+const teacherList = document.getElementById("teacherList");
 const modalBodyTopics = document.getElementById("modalBodyTopics");
 const addSelectedTopics = document.getElementById("addSelectedTopics");
 const showTopicList = document.getElementById("showTopicList");
@@ -78,7 +79,7 @@ addDetail.onclick = function () {
         <div class="row">
           <div class="text-center col" style="float: right;">
             StartTime:
-            <input class="form-control text-center" type="time">
+            <input class="form-control text-center" type="time" required>
           </div>
           <div class="text-center col">
             Duration:
@@ -108,7 +109,7 @@ addDetail.onclick = function () {
         </div>
         <div class="col">
           Capacity:
-          <input class="form-control" type="number" max="80" min="10">
+          <input class="form-control" type="number" max="80" min="10" required>
         </div>
       </div>`;
 
@@ -133,6 +134,20 @@ $('#topicModal').on('shown.bs.modal', async function (e) {
 });
 $('#topicModal').on('hidden.bs.modal', function (e) {
     modalBodyTopics.innerHTML = '';
+})
+$('#courseModal').on('shown.bs.modal', async function (e) {
+    let teachers = await fetch(`${domainName}/api/teacher`, {
+        method: 'GET',
+        headers: { "Content-Type": "application/json" }
+    });
+    if (teachers.ok) {
+        teachers = await teachers.json();
+        if (teachers) {
+            for (let i = 0; i < teachers.length; i++) {
+                teacherList.appendChild(createTeacherOption(teachers[i]["name"]));
+            }
+        }
+    }
 })
 async function topicDoneClicked() {
     let topicName = newTopic.children[0].value;
@@ -368,6 +383,12 @@ function createInputElement() {
     div.innerHTML = `<input type='text' class='form-control m-2' required>
                     \n<button class='btn btn-primary m-2'>Done</button>`;
     return div;
+}
+function createTeacherOption(name) {
+    let option = document.createElement("option");
+    option.textContent = name;
+    option.value = name;
+    return option;
 }
 
 let clearTopicSection = () => {

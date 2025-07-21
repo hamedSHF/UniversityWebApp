@@ -1,6 +1,9 @@
 ﻿@model UniversityWebApp.ViewModels.MajorViewModel
 
-
+@section css
+{
+    <link rel="stylesheet" href="~/css/ManageCourses.css" asp-append-version="true"/>
+}
 <div class="row">
     <div class="col p-4">
         <p class="text-center">Majors</p>
@@ -79,15 +82,15 @@
             <div class="flex-row d-flex justify-content-center">
                 <div class="m-2 p-2">
             StartDate:
-            <input type="date" class="form-control">
+            <input type="date" class="form-control" required>
         </div>
                 <div class="m-2 p-2">
             EndDate:
-            <input type="date" class="form-control">
+            <input type="date" class="form-control" required>
         </div>
                 <div class="m-2 p-2">
             Teacher:
-            <select class="form-select">
+            <select class="form-select" id="teacherList">
                 <option>Akbar</option>
                 <option>Asghar</option>
             </select>
@@ -100,7 +103,7 @@
             <div class="row">
                 <div class="text-center col" style="float: right;">
                     StartTime:
-                    <input class="form-control text-center" type="time">
+                    <input class="form-control text-center" type="time" required>
                 </div>
                 <div class="text-center col">
                     Duration:
@@ -130,7 +133,7 @@
                 </div>
                 <div class="col">
                     Capacity:
-                    <input class="form-control" type="number" max="80" min="10">
+                    <input class="form-control" type="number" max="80" min="10" required>
                 </div>
             </div>
         </div>

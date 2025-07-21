@@ -14,10 +14,10 @@ namespace UniversityWebApp.EndPoints
             builder.MapGet("/", GetTopics);
             builder.MapGet("/{major:required}", GetTopicsByMajor);
             builder.MapPost("/addTopicMajor", AddTopicMajor);
-            builder.MapPost("/addTopic", AddTopic);
+            builder.MapPost("/add", AddTopic);
             builder.MapDelete("/deleteTopicMajor", DeleteTopicMajor);
-            builder.MapDelete("/deleteTopic/{id:required}", DeleteTopic);
-            builder.MapPut("/updateTopic", UpdateTopic);
+            builder.MapDelete("/delete/{id:required}", DeleteTopic);
+            builder.MapPut("/update", UpdateTopic);
             return builder;
         }
         public static async Task<Ok<IEnumerable<TopicResponse>>> GetTopics(

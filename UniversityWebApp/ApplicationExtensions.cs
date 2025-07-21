@@ -48,6 +48,7 @@ namespace UniversityWebApp
                     });
 
                     cfg.ConfigureEndpoints(context);
+                    cfg.Durable = true;
                 });
             });
         }
