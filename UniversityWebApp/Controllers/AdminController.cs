@@ -26,7 +26,7 @@ namespace UniversityWebApp.Controllers
         private readonly ITeacherRepository teacherRepository;
         private readonly IStudentRepository studentRepository;
         private readonly IOptions<IdentityAddressesOptions> identityOptions;
-        private readonly IPublishEndpoint publishEndpoint;
+        private readonly IBusControl publishEndpoint;
         private readonly ILogger<AdminController> adminLogger;
         private readonly IMapper mapper;
         public AdminController(ITeacherRepository teacherRepository,
@@ -34,7 +34,7 @@ namespace UniversityWebApp.Controllers
             ICourseRepository courseRepository,
             IMajorRepository majorRepository,
             IOptions<IdentityAddressesOptions> identityOptions,
-            IPublishEndpoint publishEndpoint,
+            IBusControl publishEndpoint,
             ILogger<AdminController> adminLogger,
             IMapper mapper)
         {
@@ -65,9 +65,12 @@ namespace UniversityWebApp.Controllers
                 if (addedEntity.StudentId != null)
                 {
                     string userName = addedEntity.StudentUserName;
-                    await publishEndpoint.Publish(new CreatedStudentEvent
-                        (userName,PasswordCreator.
-                        CreateStudentPassword(userName, addedEntity.FirstName, addedEntity.LastName)));
+                    if (publishEndpoint.CheckHealth().Status == BusHealthStatus.Healthy)
+                    {
+                        await publishEndpoint.Publish(new CreatedStudentEvent
+                            (userName, PasswordCreator.
+                            CreateStudentPassword(userName, addedEntity.FirstName, addedEntity.LastName)));
+                    }
                     return RedirectToAction(nameof(Confirmation), new { message = $"User with Id {addedEntity.StudentId} added." });
                 }
                 return StatusCode(StatusCodes.Status500InternalServerError);
@@ -96,22 +99,30 @@ namespace UniversityWebApp.Controllers
         {
             try
             {
-                if (await teacherRepository.Exists(teacherDto.FirstName, teacherDto.LastName))
-                    return StatusCode(StatusCodes.Status409Conflict, "Teacher already exists.");
                 var teacher = Teacher.CreateTeacher(
                     UserNameGenerator.
                     GenerateTeacherUsername((await teacherRepository.CountAll()),
-                    teacherDto.FirstName.First().ToString() + teacherDto.LastName.First()), teacherDto);
+                    teacherDto.FirstName[0].ToString() + teacherDto.LastName[0]), teacherDto);
                 var addedTeacher = await teacherRepository.Add(teacher);
                 await teacherRepository.SaveChanges();
-                if (addedTeacher != null)
+                string userName = addedTeacher.TeacherUserName;
+                var pass = PasswordCreator.CreateTeacherPassword(userName, addedTeacher.FirstName, addedTeacher.LastName);
+                if (publishEndpoint.CheckHealth().Status == BusHealthStatus.Healthy)
                 {
-                    string userName = addedTeacher.TeacherUserName;
-                    await publishEndpoint.Publish(new CreatedTeacherEvent(userName,
-                        PasswordCreator.CreateTeacherPassword(userName, addedTeacher.FirstName, addedTeacher.LastName)));
+                    await publishEndpoint.Publish(new CreatedTeacherEvent(userName, pass));
                     return RedirectToAction(nameof(Confirmation), new { message = $"User with Id {addedTeacher.TeacherId} added." });
                 }
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                else
+                {
+                    var result = await FileSaverService.SaveJson<string>(new Dictionary<string, string>
+                    {
+                        {nameof(addedTeacher.TeacherUserName), userName},
+                        {"password",pass },
+                        {"TimeStamp",$"{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}-" +
+                    $"{DateTime.Now.Hour}-{DateTime.Now.Minute}-{DateTime.Now.Second}" }
+                    }, FileInfoConstants.RabbitCachePath, $"{FileInfoConstants.TeacherRabbitCache}.json");
+                }
+                return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
             {
