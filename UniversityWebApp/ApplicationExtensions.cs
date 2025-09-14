@@ -11,6 +11,7 @@ using UniversityWebApp.DataAccess;
 using UniversityWebApp.DataAccess.Interfaces;
 using UniversityWebApp.DataAccess.Repositories;
 using UniversityWebApp.Model;
+using UniversityWebApp.Services;
 
 namespace UniversityWebApp
 {
@@ -30,6 +31,7 @@ namespace UniversityWebApp
             builder.Services.AddScoped<ICourseTopicRepository, CourseTopicRepository>();
             builder.Services.AddScoped<IMajorRepository, MajorRepository>();
             builder.Services.AddScoped<IStudentRepository, StudentRepository>();
+            builder.Services.AddScoped<TeacherService>();
 
             builder.Services.AddMassTransit(x =>
             {
@@ -54,7 +56,7 @@ namespace UniversityWebApp
         }
         public static void AddCustomAuthentication(this IHostApplicationBuilder builder)
         {
-            var identitySection = builder.Configuration.GetSection(IdentityAddressesOptions.IdentityAddresses);
+            var identitySection = builder.Configuration.GetSection(IdentityAddressesOptions.SectionName);
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

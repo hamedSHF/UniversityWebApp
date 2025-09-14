@@ -1,11 +1,15 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using System.Net.Http.Headers;
 using UniversityWebApp.ConfigOptions;
 using UniversityWebApp.DataAccess;
 using UniversityWebApp.EndPoints;
 using UniversityWebApp.Model;
+using UniversityWebApp.Model.DTOs;
 using UniversityWebApp.Services;
 using UniversityWebApp.Services.CodeGenerator;
+using UniversityWebApp.Services.Registration;
 
 namespace UniversityWebApp
 {
@@ -13,6 +17,7 @@ namespace UniversityWebApp
     {
         public static void Main(string[] args)
         {
+            const string ApiKeyRequestHeaderName = "X-Api-Key";
             //Config serilog
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Debug()
@@ -21,11 +26,18 @@ namespace UniversityWebApp
                 .CreateLogger();
 
             var builder = WebApplication.CreateBuilder(args);
-            var identitySection = builder.Configuration.GetSection(IdentityAddressesOptions.IdentityAddresses);
+            var identitySection = builder.Configuration.GetSection(IdentityAddressesOptions.SectionName);
             builder.AddInfraServices();
             builder.AddCustomAuthentication();
             // Add services to the container.
             builder.Services.Configure<IdentityAddressesOptions>(identitySection);
+            builder.Services.AddHttpClient<IRegistrationService<AddTeacherDto>, TeacherService>(client =>
+            {
+                client.BaseAddress = new Uri(builder.Configuration.
+                    GetSection(IdentityAddressesOptions.SectionName)["IdentityServerSecure"]);
+                var apiKey = builder.Configuration.GetSection(ApiKeyOptions.SectionName)[ApiKeyOptions.IdentityKeyName];
+                client.DefaultRequestHeaders.Add(ApiKeyRequestHeaderName, apiKey);
+            });
             builder.Services.AddMvc();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();

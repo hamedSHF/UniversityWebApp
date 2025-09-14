@@ -2,7 +2,7 @@
 {
     public class IdentityAddressesOptions
     {
-        public const string IdentityAddresses = "IdentityAddresses";
+        public const string SectionName = "IdentityAddresses";
         public string IdentityServerSecure { get; set; } = null!;
         public string IdentityServerInsecure { get; set; } = null!;
         public StudentAddresses StudentAddresses { get; set; } = null!;

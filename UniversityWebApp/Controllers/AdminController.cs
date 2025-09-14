@@ -25,6 +25,7 @@ namespace UniversityWebApp.Controllers
         private readonly IMajorRepository majorRepository;
         private readonly ITeacherRepository teacherRepository;
         private readonly IStudentRepository studentRepository;
+        private readonly TeacherService teacherService;
         private readonly IOptions<IdentityAddressesOptions> identityOptions;
         private readonly IBusControl publishEndpoint;
         private readonly ILogger<AdminController> adminLogger;
@@ -36,7 +37,8 @@ namespace UniversityWebApp.Controllers
             IOptions<IdentityAddressesOptions> identityOptions,
             IBusControl publishEndpoint,
             ILogger<AdminController> adminLogger,
-            IMapper mapper)
+            IMapper mapper,
+            TeacherService teacherService)
         {
             this.teacherRepository = teacherRepository;
             this.studentRepository = studentRepository;
@@ -46,6 +48,7 @@ namespace UniversityWebApp.Controllers
             this.publishEndpoint = publishEndpoint;
             this.adminLogger = adminLogger;
             this.mapper = mapper;
+            this.teacherService = teacherService;
         }
         [HttpGet]
         public IActionResult Index() => View();
@@ -99,29 +102,9 @@ namespace UniversityWebApp.Controllers
         {
             try
             {
-                var teacher = Teacher.CreateTeacher(
-                    UserNameGenerator.
-                    GenerateTeacherUsername((await teacherRepository.CountAll()),
-                    teacherDto.FirstName[0].ToString() + teacherDto.LastName[0]), teacherDto);
-                var addedTeacher = await teacherRepository.Add(teacher);
-                await teacherRepository.SaveChanges();
-                string userName = addedTeacher.TeacherUserName;
-                var pass = PasswordCreator.CreateTeacherPassword(userName, addedTeacher.FirstName, addedTeacher.LastName);
-                if (publishEndpoint.CheckHealth().Status == BusHealthStatus.Healthy)
-                {
-                    await publishEndpoint.Publish(new CreatedTeacherEvent(userName, pass));
-                    return RedirectToAction(nameof(Confirmation), new { message = $"User with Id {addedTeacher.TeacherId} added." });
-                }
-                else
-                {
-                    var result = await FileSaverService.SaveJson<string>(new Dictionary<string, string>
-                    {
-                        {nameof(addedTeacher.TeacherUserName), userName},
-                        {"password",pass },
-                        {"TimeStamp",$"{DateTime.Now.Year}-{DateTime.Now.Month}-{DateTime.Now.Day}-" +
-                    $"{DateTime.Now.Hour}-{DateTime.Now.Minute}-{DateTime.Now.Second}" }
-                    }, FileInfoConstants.RabbitCachePath, $"{FileInfoConstants.TeacherRabbitCache}.json");
-                }
+                var result = await teacherService.RegisterUser(teacherDto);
+                if(result.Success)
+                    return RedirectToAction(nameof(Confirmation), new { message = result.Content });
                 return RedirectToAction(nameof(Index));
             }
             catch (Exception ex)
